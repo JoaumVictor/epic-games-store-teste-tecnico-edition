@@ -1,98 +1,155 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# 🎮 Epic Games Store - Teste Técnico Edition (Backend)
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+Bem-vindo ao backend do projeto **Epic Games Store - Teste Técnico Edition**!  
+Este serviço foi desenvolvido com **NestJS**, um framework progressivo de Node.js, e utiliza **MongoDB** como banco de dados, tudo orquestrado via **Docker** para um ambiente de desenvolvimento e deploy consistente.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+---
 
-## Description
+## 🚀 Visão Geral
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+Este backend simula as funcionalidades essenciais de uma loja de jogos, incluindo gerenciamento de jogos, usuários e histórico de transações.
 
-## Project setup
+### Recursos Principais:
 
-```bash
-$ npm install
-```
+- **Gerenciamento de Jogos (CRUD):** Adicione, visualize, atualize e remova títulos de jogos com detalhes como nome, descrição, preço, capa, banner, desconto, gêneros e mais.
+- **Gerenciamento de Usuários:** Base para autenticação e dados de usuário.
+- **Histórico de Transações:** Registra quais jogos foram comprados por qual usuário, data, valor e desconto aplicado.
+- **Dockerização:** Ambiente de desenvolvimento e produção empacotado e isolado, garantindo fácil configuração e portabilidade.
 
-## Compile and run the project
+---
 
-```bash
-# development
-$ npm run start
+## 🛠️ Tecnologias Utilizadas
 
-# watch mode
-$ npm run start:dev
+- **NestJS:** Framework Node.js para construção de aplicações escaláveis e eficientes.
+- **MongoDB:** Banco de dados NoSQL de documentos, flexível e performático.
+- **Mongoose:** Biblioteca para modelagem de objetos MongoDB para ambiente Node.js, fácil de usar com NestJS.
+- **Docker:** Plataforma para desenvolvimento, envio e execução de aplicativos usando containers.
+- **TypeScript:** Superconjunto de JavaScript que adiciona tipagem estática.
+- **class-validator:** Biblioteca para validação de objetos utilizando decoradores.
 
-# production mode
-$ npm run start:prod
-```
+---
 
-## Run tests
+## 📋 Pré-requisitos
+
+Antes de começar, certifique-se de ter as seguintes ferramentas instaladas:
+
+- **Git**
+- **Node.js (v18 ou superior)**
+- **Docker Desktop**
+
+---
+
+## 📦 Como Executar o Projeto
+
+### 1. Clonar o Repositório
 
 ```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+git clone https://github.com/seu-usuario/epic-games-store-teste-tecnico-edition.git
+cd epic-games-store-teste-tecnico-edition
 ```
 
-## Deployment
-
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+### 2. Instalar as Dependências
 
 ```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
+cd backend
+npm install
+npm install @nestjs/mongoose mongoose @nestjs/config class-validator class-transformer
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+### 3. Iniciar com Docker Compose
 
-## Resources
+```bash
+cd .. # Volta para a pasta raiz
+docker-compose up --build
+```
 
-Check out a few resources that may come in handy when working with NestJS:
+O backend estará acessível em `http://localhost:3000`.
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+---
 
-## Support
+## ⚙️ Variáveis de Ambiente
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+As principais variáveis utilizadas são:
 
-## Stay in touch
+- `MONGO_URI`: URL de conexão com MongoDB (`mongodb://mongodb:27017/game_store`)
+- `PORT`: Porta da aplicação NestJS (padrão: `3000`)
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+---
 
-## License
+## 📍 Endpoints da API
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+### 1. Módulo de Jogos (`/games`) 🎮
+
+| Método | Rota       | Descrição                          |
+| ------ | ---------- | ---------------------------------- |
+| POST   | /games     | Cria um novo jogo                  |
+| GET    | /games     | Retorna todos os jogos             |
+| GET    | /games/:id | Retorna um jogo pelo ID            |
+| PUT    | /games/:id | Atualiza um jogo existente pelo ID |
+| DELETE | /games/:id | Remove um jogo pelo ID             |
+
+#### Exemplo de Payload (POST ou PUT)
+
+```json
+{
+  "name": "The Witcher 3: Wild Hunt",
+  "description": "Um RPG de mundo aberto aclamado.",
+  "cover": "https://example.com/witcher3_cover.jpg",
+  "banner": "https://example.com/witcher3_banner.jpg",
+  "price": 59.99,
+  "discount": 15,
+  "genre": ["RPG", "Aventura"],
+  "releaseDate": "2015-05-19T00:00:00.000Z",
+  "developer": "CD Projekt Red",
+  "publisher": "CD Projekt",
+  "platforms": ["PC", "PS4", "Xbox One", "Nintendo Switch"],
+  "rating": 5,
+  "isFeatured": true
+}
+```
+
+---
+
+### 2. Módulo de Usuários (`/users`) 🧑‍🤝‍🧑
+
+| Método | Rota   | Descrição                 |
+| ------ | ------ | ------------------------- |
+| GET    | /users | Retorna todos os usuários |
+
+> ⚠️ Este módulo está preparado para expansão. Os endpoints de CRUD completos e autenticação ainda não foram implementados.
+
+---
+
+### 3. Módulo de Transações (`/transactions`) 💸
+
+| Método | Rota          | Descrição                   |
+| ------ | ------------- | --------------------------- |
+| POST   | /transactions | Registra uma nova transação |
+| GET    | /transactions | Retorna todas as transações |
+
+#### Exemplo de Payload (POST /transactions)
+
+```json
+{
+  "game": "60c72b2f9b1d8c001c8e4d21",
+  "user": "60c72b2f9b1d8c001c8e4d22",
+  "amount": 49.99,
+  "discountApplied": 10
+}
+```
+
+---
+
+## 💡 Próximos Passos e Melhorias Futuras
+
+- **Autenticação e Autorização:** Implementar JWT.
+- **Testes:** Unitários, integração e end-to-end.
+- **Paginação e Filtros:** Para jogos, usuários e transações.
+- **Validação de Entradas:** Regras de negócio mais complexas.
+- **Log:** Sistema de log robusto.
+- **Documentação da API:** Usar Swagger para documentação interativa.
+
+---
+
+Sinta-se à vontade para explorar, modificar e expandir este projeto!  
+Se tiver qualquer dúvida ou precisar de ajuda, é só chamar. 😉
