@@ -11,6 +11,6 @@ import { User, UserSchema } from './schemas/user.schema';
   ],
   controllers: [UsersController],
   providers: [UsersService],
-  exports: [UsersService], // Pode exportar se precisar ser injetado em outros módulos (ex: Transactions)
+  exports: [UsersService],
 })
 export class UsersModule {}

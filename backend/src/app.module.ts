@@ -11,17 +11,17 @@ import { TransactionsModule } from './transactions/transactions.module';
       isGlobal: true,
     }),
     MongooseModule.forRootAsync({
-      imports: [ConfigModule], // Importa ConfigModule para acessar as variáveis de ambiente
+      imports: [ConfigModule],
       useFactory: (configService: ConfigService) => ({
-        uri: configService.get<string>('MONGO_URI'), // Obtém a URI do MongoDB das variáveis de ambiente
+        uri: configService.get<string>('MONGO_URI'),
       }),
-      inject: [ConfigService], // Injeta o ConfigService no useFactory
+      inject: [ConfigService],
     }),
     GamesModule,
     UsersModule,
     TransactionsModule,
   ],
-  controllers: [], // Controladores globais (raramente usados)
-  providers: [], // Provedores globais (raramente usados)
+  controllers: [],
+  providers: [],
 })
 export class AppModule {}
