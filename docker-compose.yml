@@ -27,6 +27,9 @@ services:
     environment:
       # Variáveis de ambiente para o NestJS se conectar ao MongoDB
       MONGO_URI: mongodb://mongodb:27017/game_store # O 'mongodb' no host é o nome do serviço no docker-compose
+    volumes: # <--- NOVA SEÇÃO DE VOLUMES AQUI
+      - ./backend:/app # Mapeia a pasta 'backend' do seu PC para '/app' dentro do container
+      - /app/node_modules # Impede que o node_modules local sobrescreva o do container
     restart: always # Garante que o container reinicie automaticamente se parar
     networks:
       - app_network # Conecta o backend à rede da aplicação

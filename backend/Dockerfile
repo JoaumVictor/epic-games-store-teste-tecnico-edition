@@ -14,12 +14,6 @@
         # Nativos preferem `npm install` sem `--force`
         RUN npm install
 
-        # Copia todo o código-fonte da aplicação para o container
-        COPY . .
-
-        # Constrói a aplicação NestJS (transpila TypeScript para JavaScript)
-        RUN npm run build
-
         # Expõe a porta em que a aplicação NestJS vai rodar
         EXPOSE 3000
 
@@ -27,5 +21,5 @@
         # Usa `node dist/main` porque o `npm run start` dentro do container pode ter problemas
         # com caminhos e variáveis de ambiente ao invés de usar o binário.
         # 'start:prod' é geralmente o comando para produção que já usa o JS transpilado.
-        CMD [ "npm", "run", "start:prod" ]
+        CMD [ "npm", "run", "start:dev" ]
         
