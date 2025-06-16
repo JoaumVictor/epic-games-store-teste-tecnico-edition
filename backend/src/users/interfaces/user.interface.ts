@@ -9,7 +9,8 @@ export interface User extends Document {
   readonly username: string;
   readonly email: string;
   readonly password?: string;
-  readonly role?: UserRole; // Usando o enum
+  readonly gamesBought?: string[];
+  readonly role?: UserRole;
   readonly createdAt: Date;
   readonly updatedAt: Date;
 }

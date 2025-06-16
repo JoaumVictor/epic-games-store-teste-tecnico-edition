@@ -15,6 +15,11 @@ export class User extends Document {
 
   @Prop({ default: 'user' }) // Papel padrão 'user'
   role?: 'user' | 'admin';
+
+  @Prop({
+    default: [],
+  })
+  gamesBought?: string[]; // Array de referências a jogos
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

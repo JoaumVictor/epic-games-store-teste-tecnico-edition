@@ -1,14 +1,14 @@
-/* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 // backend/src/users/users.service.ts
 import {
   Injectable,
   NotFoundException,
-  ConflictException, // Para erros de duplicidade
-  BadRequestException, // Para IDs inválidos
+  ConflictException,
+  BadRequestException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model, Error as MongooseError } from 'mongoose'; // Importa Error do Mongoose
+import { Model, Error as MongooseError } from 'mongoose';
+import * as bcrypt from 'bcrypt';
 import { User } from './schemas/user.schema';
 import { CreateUserDto } from './dtos/create-user.dto';
 import { UpdateUserDto } from './dtos/update-user.dto';
@@ -19,18 +19,31 @@ export class UsersService {
     @InjectModel(User.name) private readonly userModel: Model<User>,
   ) {}
 
-  // Método para criar um novo usuário
   async create(createUserDto: CreateUserDto): Promise<User> {
     try {
-      // Em um cenário real, você faria o hash da senha aqui antes de salvar
-      // Ex: const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
-      // const createdUser = new this.userModel({ ...createUserDto, password: hashedPassword });
-      const createdUser = new this.userModel(createUserDto);
-      return await createdUser.save();
-    } catch (error) {
-      // Verifica se é um erro de duplicidade de chave (código 11000 do MongoDB)
-      if (error.code === 11000) {
-        // Você pode inspecionar `error.message` para saber qual campo (email/username) causou o conflito
+      const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
+
+      const createdUser = new this.userModel({
+        username: createUserDto.username,
+        email: createUserDto.email,
+        password: hashedPassword,
+      });
+      const savedUser = await createdUser.save();
+      return savedUser.toObject({
+        getters: true,
+        virtuals: false,
+        transform: (doc, ret) => {
+          delete ret.password;
+          delete ret.__v;
+          return ret;
+        },
+      });
+    } catch (error: unknown) {
+      if (
+        error instanceof Error &&
+        'code' in error &&
+        (error as any).code === 11000
+      ) {
         if (error.message.includes('email')) {
           throw new ConflictException('Já existe um usuário com este e-mail.');
         }
@@ -39,33 +52,35 @@ export class UsersService {
             'Já existe um usuário com este nome de usuário.',
           );
         }
-        // Caso não seja nenhum dos campos esperados, erro genérico
         throw new ConflictException('Conflito de dados ao criar usuário.');
       }
       throw error;
     }
   }
 
-  // Método para encontrar todos os usuários
   async findAll(): Promise<User[]> {
     try {
-      return await this.userModel.find().exec();
-    } catch (error) {
+      return await this.userModel
+        .find()
+        .select('-password -gamesBought -__v')
+        .exec();
+    } catch (error: unknown) {
       console.error('Erro ao buscar todos os usuários:', error);
       throw new BadRequestException('Não foi possível listar os usuários.');
     }
   }
 
-  // Método para encontrar um usuário pelo ID
   async findOne(id: string): Promise<User> {
     try {
-      const user = await this.userModel.findById(id).exec();
+      const user = await this.userModel
+        .findById(id)
+        .select('-password -__v')
+        .exec();
       if (!user) {
         throw new NotFoundException(`Usuário com ID "${id}" não encontrado.`);
       }
       return user;
-    } catch (error) {
-      // Captura erros de formato de ID inválido (CastError)
+    } catch (error: unknown) {
       if (error instanceof MongooseError.CastError) {
         throw new BadRequestException(`ID "${id}" possui formato inválido.`);
       }
@@ -73,13 +88,10 @@ export class UsersService {
     }
   }
 
-  // Exemplo de método para encontrar um usuário por email
   async findByEmail(email: string): Promise<User | null> {
     try {
       return await this.userModel.findOne({ email }).exec();
-    } catch (error) {
-      // Este método não deve lançar 404 se não encontrar, apenas retornar null
-      // mas pode lançar erros de conexão ou outros problemas.
+    } catch (error: unknown) {
       console.error('Erro ao buscar usuário por email:', error);
       throw new BadRequestException(
         'Não foi possível buscar o usuário por email.',
@@ -87,11 +99,15 @@ export class UsersService {
     }
   }
 
-  // Método para atualização de usuário
   async update(id: string, updateUserDto: UpdateUserDto): Promise<User> {
     try {
+      if (updateUserDto.password) {
+        updateUserDto.password = await bcrypt.hash(updateUserDto.password, 10);
+      }
+
       const existingUser = await this.userModel
         .findByIdAndUpdate(id, { $set: updateUserDto }, { new: true })
+        .select('-password -__v')
         .exec();
       if (!existingUser) {
         throw new NotFoundException(
@@ -99,15 +115,17 @@ export class UsersService {
         );
       }
       return existingUser;
-    } catch (error) {
-      // Captura erros de formato de ID inválido (CastError)
+    } catch (error: unknown) {
       if (error instanceof MongooseError.CastError) {
         throw new BadRequestException(
           `ID "${id}" possui formato inválido para atualização.`,
         );
       }
-      // Verifica se é um erro de duplicidade de chave ao tentar atualizar email/username
-      if (error?.code === 11000) {
+      if (
+        error instanceof Error &&
+        'code' in error &&
+        (error as any).code === 11000
+      ) {
         if (error.message.includes('email')) {
           throw new ConflictException(
             'Este e-mail já está em uso por outro usuário.',
@@ -124,7 +142,6 @@ export class UsersService {
     }
   }
 
-  // Método para remover um usuário
   async remove(id: string): Promise<User> {
     try {
       const deletedUser = await this.userModel.findByIdAndDelete(id).exec();
@@ -134,14 +151,50 @@ export class UsersService {
         );
       }
       return deletedUser;
-    } catch (error) {
-      // Captura erros de formato de ID inválido (CastError)
+    } catch (error: unknown) {
       if (error instanceof MongooseError.CastError) {
         throw new BadRequestException(
           `ID "${id}" possui formato inválido para remoção.`,
         );
       }
       throw error;
+    }
+  }
+
+  async comparePassword(
+    plainPassword: string,
+    hashedPassword: string,
+  ): Promise<boolean> {
+    return bcrypt.compare(plainPassword, hashedPassword);
+  }
+
+  async addGameToUserBoughtList(userId: string, gameId: string): Promise<User> {
+    try {
+      const updatedUser = await this.userModel
+        .findByIdAndUpdate(
+          userId,
+          { $addToSet: { gamesBought: gameId } }, // $addToSet adiciona o ID se não existir
+          { new: true, select: '-password -__v' }, // Retorna o doc atualizado, sem senha e __v
+        )
+        .exec();
+
+      if (!updatedUser) {
+        throw new NotFoundException(
+          `Usuário com ID "${userId}" não encontrado para adicionar jogo.`,
+        );
+      }
+      return updatedUser;
+    } catch (error: unknown) {
+      if (error instanceof MongooseError.CastError) {
+        throw new BadRequestException(
+          `ID do usuário ou do jogo possui formato inválido.`,
+        );
+      }
+      console.error(
+        `Erro ao adicionar jogo ${gameId} ao usuário ${userId}:`,
+        error,
+      );
+      throw error; // Re-lança outros erros
     }
   }
 }

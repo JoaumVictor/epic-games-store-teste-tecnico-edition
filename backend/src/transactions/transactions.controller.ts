@@ -19,6 +19,4 @@ export class TransactionsController {
   async findAll(): Promise<Transaction[]> {
     return this.transactionsService.findAll();
   }
-
-  // ... rotas para buscar transações por usuário, por jogo, etc.
 }
