@@ -1,9 +1,10 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 // backend/src/transactions/transactions.service.ts
 import {
   Injectable,
   BadRequestException,
   NotFoundException,
-  ConflictException, // <--- Importa ConflictException
+  ConflictException,
   Inject,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
@@ -35,44 +36,52 @@ export class TransactionsService {
       discountApplied,
     } = createTransactionDto;
 
-    // Log: Início da tentativa de criação de transação - AGORA USANDO logger.info()
-    this.logger.info(`Attempting to create transaction`, {
+    this.logger.info({
+      message: `Attempting to create transaction`,
       gameId,
       userId,
       amount,
     });
 
     try {
-      // --- Validação de Referências ---
-      // 1. Verificar se o jogo existe
       const game = await this.gamesService.findOne(gameId);
       if (!game) {
-        this.logger.info(`Transaction failed: Game not found`, { gameId });
+        this.logger.warn({
+          message: `Transaction failed: Game not found`,
+          gameId,
+        });
         throw new NotFoundException(`Jogo com ID "${gameId}" não encontrado.`);
       }
-      this.logger.info(`Game found: ${game.name}`, {
+      this.logger.info({
+        message: `Game found: ${game.name}`,
         gameId: game._id,
         gameName: game.name,
       });
 
-      // 2. Verificar se o usuário existe e se já possui o jogo
-      const user = await this.usersService.findOne(userId); // Buscamos o user sem select '-password -__v' para verificar gamesBought
+      const user = await this.usersService.findOne(userId);
       if (!user) {
-        this.logger.info(`Transaction failed: User not found`, { userId });
+        this.logger.warn({
+          message: `Transaction failed: User not found`,
+          userId,
+        });
         throw new NotFoundException(
           `Usuário com ID "${userId}" não encontrado.`,
         );
       }
-      this.logger.info(`User found: ${user.username}`, {
+      this.logger.info({
+        message: `User found: ${user.username}`,
         userId: user._id,
         username: user.username,
       });
 
-      // --- VALIDAÇÃO DE DUPLICIDADE DE JOGO NA BIBLIOTECA DO USUÁRIO ---
-      // Verifica se o ID do jogo já está no array gamesBought do usuário
-      // Usamos .includes() para checar se o jogo já foi "comprado"
-      if (user.gamesBought && user.gamesBought.includes(gameId)) {
-        this.logger.info(`Transaction failed: User already owns game`, {
+      if (
+        user.gamesBought &&
+        user.gamesBought.some(
+          (boughtGameId) => boughtGameId.toString() === gameId,
+        )
+      ) {
+        this.logger.warn({
+          message: `Transaction failed: User already owns game`,
           userId: user._id,
           gameId: game._id,
           gameName: game.name,
@@ -82,10 +91,10 @@ export class TransactionsService {
         );
       }
 
-      // Calcula o valor final com desconto
       const finalAmount = game.price * (1 - (game.discount || 0) / 100);
       if (amount !== finalAmount) {
-        this.logger.info(`Value mismatch for transaction. Using DTO amount.`, {
+        this.logger.warn({
+          message: `Value mismatch for transaction. Using DTO amount.`,
           dtoAmount: amount,
           calculatedAmount: finalAmount,
           gameName: game.name,
@@ -101,7 +110,8 @@ export class TransactionsService {
       });
 
       const savedTransaction = await createdTransaction.save();
-      this.logger.info(`Transaction saved`, {
+      this.logger.info({
+        message: `Transaction saved`,
         transactionId: savedTransaction._id,
         userId: user._id,
         username: user.username,
@@ -109,20 +119,20 @@ export class TransactionsService {
         gameName: game.name,
       });
 
-      // --- ATUALIZAÇÃO DO USUÁRIO ---
       await this.usersService.addGameToUserBoughtList(
         user._id as string,
         game._id as string,
       );
-      this.logger.info(`Game added to user's bought list`, {
+      this.logger.info({
+        message: `Game added to user's bought list`,
         userId: user._id,
         username: user.username,
         gameId: game._id,
         gameName: game.name,
       });
 
-      // Log: Transação concluída com sucesso
-      this.logger.info(`Transaction successful`, {
+      this.logger.info({
+        message: `Transaction successful`,
         user: user.username,
         game: game.name,
         finalAmount: amount,
@@ -132,7 +142,8 @@ export class TransactionsService {
       return savedTransaction;
     } catch (error: unknown) {
       if (error instanceof MongooseError.CastError) {
-        this.logger.error(`Transaction failed: Invalid ID format.`, {
+        this.logger.error({
+          message: `Transaction failed: Invalid ID format.`,
           error: error.message,
           stack: (error as Error).stack,
         });
@@ -140,31 +151,42 @@ export class TransactionsService {
           'Um dos IDs (jogo ou usuário) possui formato inválido.',
         );
       }
-      // Re-lança ConflictException ou NotFoundException
       if (
         error instanceof NotFoundException ||
         error instanceof ConflictException
       ) {
         throw error;
       }
-      // Log de erro para exceções não tratadas especificamente
       if (error instanceof Error) {
-        this.logger.error(`Transaction failed: ${error.message}`, {
+        this.logger.error({
+          message: `Transaction failed: ${error.message}`,
           error: error.message,
           stack: error.stack,
         });
       } else {
-        this.logger.error(`Transaction failed: Unknown error`, { error });
+        this.logger.error({
+          message: `Transaction failed: Unknown error`,
+          error,
+        });
       }
       throw error;
     }
   }
 
-  async findAll(): Promise<Transaction[]> {
+  // Método para encontrar todas as transações, opcionalmente filtradas por userId
+  async findAll(userId?: string): Promise<Transaction[]> {
+    // <--- Recebe userId
     try {
-      this.logger.info('Fetching all transactions.');
+      const query: any = {}; // Objeto para construir a query do Mongoose
+      if (userId) {
+        query.user = userId; // Adiciona o filtro por usuário se o userId for fornecido
+        this.logger.info(`Fetching transactions for User ID: ${userId}.`); // <--- Log ajustado
+      } else {
+        this.logger.info('Fetching all transactions.'); // <--- Log para todas as transações
+      }
+
       return await this.transactionModel
-        .find()
+        .find(query) // <--- Usa o objeto de query
         .populate('game')
         .populate('user')
         .exec();
@@ -173,17 +195,23 @@ export class TransactionsService {
         this.logger.error('Error fetching all transactions.', {
           error: error.message,
           stack: error.stack,
-        });
+          userId,
+        }); // <--- Log ajustado
       } else {
-        this.logger.error('Error fetching all transactions.', { error });
+        this.logger.error('Error fetching all transactions.', {
+          error,
+          userId,
+        }); // <--- Log ajustado
       }
       throw new BadRequestException('Não foi possível listar as transações.');
     }
   }
 
+  // ... (outros métodos do service, como findOne, remove)
   async findOne(id: string): Promise<Transaction> {
     try {
-      this.logger.info(`Fetching transaction with ID: ${id}.`, {
+      this.logger.info({
+        message: `Fetching transaction with ID: ${id}.`,
         transactionId: id,
       });
       const transaction = await this.transactionModel
@@ -192,7 +220,8 @@ export class TransactionsService {
         .populate('user')
         .exec();
       if (!transaction) {
-        this.logger.info(`Transaction with ID "${id}" not found.`, {
+        this.logger.warn({
+          message: `Transaction with ID "${id}" not found.`,
           transactionId: id,
         });
         throw new NotFoundException(`Transação com ID "${id}" não encontrada.`);
@@ -200,7 +229,8 @@ export class TransactionsService {
       return transaction;
     } catch (error: unknown) {
       if (error instanceof MongooseError.CastError) {
-        this.logger.error(`Invalid transaction ID format: ${id}.`, {
+        this.logger.error({
+          message: `Invalid transaction ID format: ${id}.`,
           transactionId: id,
           error: error.message,
           stack: (error as Error).stack,
@@ -208,15 +238,18 @@ export class TransactionsService {
         throw new BadRequestException(`ID "${id}" possui formato inválido.`);
       }
       if (error instanceof Error) {
-        this.logger.error(
-          `Error fetching transaction with ID ${id}: ${error.message}`,
-          { transactionId: id, error: error.message, stack: error.stack },
-        );
+        this.logger.error({
+          message: `Error fetching transaction with ID ${id}: ${error.message}`,
+          transactionId: id,
+          error: error.message,
+          stack: error.stack,
+        });
       } else {
-        this.logger.error(
-          `Error fetching transaction with ID ${id}: Unknown error`,
-          { transactionId: id, error },
-        );
+        this.logger.error({
+          message: `Error fetching transaction with ID ${id}: Unknown error`,
+          transactionId: id,
+          error,
+        });
       }
       throw error;
     }
@@ -224,27 +257,31 @@ export class TransactionsService {
 
   async remove(id: string): Promise<Transaction> {
     try {
-      this.logger.info(`Attempting to remove transaction with ID: ${id}.`, {
+      this.logger.info({
+        message: `Attempting to remove transaction with ID: ${id}.`,
         transactionId: id,
       });
       const deletedTransaction = await this.transactionModel
         .findByIdAndDelete(id)
         .exec();
       if (!deletedTransaction) {
-        this.logger.info(`Transaction with ID "${id}" not found for removal.`, {
+        this.logger.warn({
+          message: `Transaction with ID "${id}" not found for removal.`,
           transactionId: id,
         });
         throw new NotFoundException(
           `Transação com ID "${id}" não encontrada para remoção.`,
         );
       }
-      this.logger.info(`Transaction with ID ${id} removed successfully.`, {
+      this.logger.info({
+        message: `Transaction with ID ${id} removed successfully.`,
         transactionId: id,
       });
       return deletedTransaction;
     } catch (error: unknown) {
       if (error instanceof MongooseError.CastError) {
-        this.logger.error(`Invalid transaction ID format for removal: ${id}.`, {
+        this.logger.error({
+          message: `Invalid transaction ID format for removal: ${id}.`,
           transactionId: id,
           error: error.message,
           stack: (error as Error).stack,
@@ -254,10 +291,12 @@ export class TransactionsService {
         );
       }
       if (error instanceof Error) {
-        this.logger.error(
-          `Error removing transaction with ID ${id}: ${error.message}`,
-          { transactionId: id, error: error.message, stack: error.stack },
-        );
+        this.logger.error({
+          message: `Error removing transaction with ID ${id}: ${error.message}`,
+          transactionId: id,
+          error: error.message,
+          stack: error.stack,
+        });
       } else {
         this.logger.error({
           message: `Error removing transaction with ID ${id}: Unknown error`,
