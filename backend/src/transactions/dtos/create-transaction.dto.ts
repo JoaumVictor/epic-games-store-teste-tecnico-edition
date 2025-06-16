@@ -1,20 +1,35 @@
 // backend/src/transactions/dtos/create-transaction.dto.ts
 import { IsMongoId, IsNumber, IsOptional, Min, Max } from 'class-validator';
+import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateTransactionDto {
-  @IsMongoId() // Valida se é um ID válido do MongoDB
-  game: string; // ID do jogo
+  @ApiProperty({
+    description: 'ID do jogo envolvido na transação',
+    example: '60c72b2f9b1d8c001c8e4d21',
+  })
+  @IsMongoId()
+  game: string;
 
-  @IsMongoId() // Valida se é um ID válido do MongoDB
-  user: string; // ID do usuário
+  @ApiProperty({
+    description: 'ID do usuário que realizou a transação',
+    example: '60c72b2f9b1d8c001c8e4d22',
+  })
+  @IsMongoId()
+  user: string;
 
+  @ApiProperty({ description: 'Valor final pago na transação', example: 49.99 })
   @IsNumber()
   @Min(0)
-  amount: number; // Valor final da transação
+  amount: number;
 
+  @ApiProperty({
+    description: 'Percentual de desconto aplicado (0-100)',
+    required: false,
+    example: 10,
+  })
   @IsOptional()
   @IsNumber()
   @Min(0)
   @Max(100)
-  discountApplied?: number; // Desconto aplicado
+  discountApplied?: number;
 }

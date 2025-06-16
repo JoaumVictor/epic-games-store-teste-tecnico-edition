@@ -8,11 +8,7 @@ import {
 } from '../../transactions/schemas/transaction.schema';
 
 async function bootstrap() {
-  // Use a URI que seu host pode acessar para o MongoDB Dockerizado
-  // IMPORTANTE: Ajuste a porta se você a alterou no seu docker-compose.yml
-  // Se no docker-compose.yml está "27018:27017", use 'localhost:27018'.
-  // Se está "27017:27017", use 'localhost:27017'.
-  const mongoUri = 'mongodb://localhost:27018/game_store'; // <-- VERIFIQUE E AJUSTE ESTA PORTA
+  const mongoUri = 'mongodb://localhost:27018/game_store';
 
   // --- Conexão direta com Mongoose ---
   console.log(`Tentando conectar ao MongoDB em: ${mongoUri}`);
@@ -240,37 +236,6 @@ async function bootstrap() {
   console.log('Inserindo jogos...');
   const insertedGames = await gameModel.insertMany(gamesData);
   console.log('Jogos inseridos:', insertedGames.length);
-
-  // --- Inserir Transações (usando os IDs dos jogos e usuários recém-inseridos) ---
-  console.log('Inserindo transações...');
-  const transactionsData = [
-    {
-      game: insertedGames[0]._id, // Cyberpunk 2077
-      user: insertedUsers[0]._id, // victor_dev
-      transactionDate: new Date(),
-      amount:
-        insertedGames[0].price * (1 - (insertedGames[0].discount || 0) / 100),
-      discountApplied: insertedGames[0].discount,
-    },
-    {
-      game: insertedGames[1]._id, // The Witcher 3
-      user: insertedUsers[1]._id, // player_one
-      transactionDate: new Date(Date.now() - 86400000), // Ontem
-      amount:
-        insertedGames[1].price * (1 - (insertedGames[1].discount || 0) / 100),
-      discountApplied: insertedGames[1].discount,
-    },
-    {
-      game: insertedGames[3]._id, // Minecraft
-      user: insertedUsers[2]._id, // gamer_girl
-      transactionDate: new Date(Date.now() - 172800000), // Anteontem
-      amount: insertedGames[3].price, // Sem desconto
-      discountApplied: 0,
-    },
-  ];
-  const insertedTransactions =
-    await transactionModel.insertMany(transactionsData);
-  console.log('Transações inseridas:', insertedTransactions.length);
 
   console.log('Dados de exemplo inseridos com sucesso!');
   await mongooseConnection.close(); // Fecha a conexão com o banco

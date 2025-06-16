@@ -10,7 +10,6 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model, Error as MongooseError } from 'mongoose';
 import * as bcrypt from 'bcrypt';
 import { User } from './schemas/user.schema';
-import { CreateUserDto } from './dtos/create-user.dto';
 import { UpdateUserDto } from './dtos/update-user.dto';
 
 @Injectable()
@@ -18,45 +17,6 @@ export class UsersService {
   constructor(
     @InjectModel(User.name) private readonly userModel: Model<User>,
   ) {}
-
-  async create(createUserDto: CreateUserDto): Promise<User> {
-    try {
-      const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
-
-      const createdUser = new this.userModel({
-        username: createUserDto.username,
-        email: createUserDto.email,
-        password: hashedPassword,
-      });
-      const savedUser = await createdUser.save();
-      return savedUser.toObject({
-        getters: true,
-        virtuals: false,
-        transform: (doc, ret) => {
-          delete ret.password;
-          delete ret.__v;
-          return ret;
-        },
-      });
-    } catch (error: unknown) {
-      if (
-        error instanceof Error &&
-        'code' in error &&
-        (error as any).code === 11000
-      ) {
-        if (error.message.includes('email')) {
-          throw new ConflictException('Já existe um usuário com este e-mail.');
-        }
-        if (error.message.includes('username')) {
-          throw new ConflictException(
-            'Já existe um usuário com este nome de usuário.',
-          );
-        }
-        throw new ConflictException('Conflito de dados ao criar usuário.');
-      }
-      throw error;
-    }
-  }
 
   async findAll(): Promise<User[]> {
     try {

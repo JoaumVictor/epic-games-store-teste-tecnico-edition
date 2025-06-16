@@ -10,7 +10,6 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model, Error as MongooseError } from 'mongoose'; // Importa Error do Mongoose para tipagem
 import { Game } from './schemas/game.schema';
 import { CreateGameDto } from './dtos/create-game.dto';
-import { UpdateGameDto } from './dtos/update-game.dto';
 
 @Injectable()
 export class GamesService {
@@ -59,62 +58,6 @@ export class GamesService {
       // Captura erros de formato de ID inválido (CastError)
       if (error instanceof MongooseError.CastError) {
         throw new BadRequestException(`ID "${id}" possui formato inválido.`);
-      }
-      // Re-lança outros erros
-      throw error;
-    }
-  }
-
-  // Atualiza um jogo pelo ID
-  async update(id: string, updateGameDto: UpdateGameDto): Promise<Game> {
-    try {
-      const existingGame = await this.gameModel
-        .findByIdAndUpdate(id, { $set: updateGameDto }, { new: true })
-        .exec();
-      if (!existingGame) {
-        throw new NotFoundException(
-          `Jogo com ID "${id}" não encontrado para atualização.`,
-        );
-      }
-      return existingGame;
-    } catch (error) {
-      // Captura erros de formato de ID inválido (CastError)
-      if (error instanceof MongooseError.CastError) {
-        throw new BadRequestException(
-          `ID "${id}" possui formato inválido para atualização.`,
-        );
-      }
-      // Verifica se é um erro de duplicidade de chave ao tentar atualizar um nome
-      if (
-        error instanceof Error &&
-        'code' in error &&
-        (error as any)?.code === 11000
-      ) {
-        throw new ConflictException(
-          'Já existe outro jogo com o nome informado.',
-        );
-      }
-      // Re-lança outros erros
-      throw error;
-    }
-  }
-
-  // Remove um jogo pelo ID
-  async remove(id: string): Promise<Game> {
-    try {
-      const deletedGame = await this.gameModel.findByIdAndDelete(id).exec();
-      if (!deletedGame) {
-        throw new NotFoundException(
-          `Jogo com ID "${id}" não encontrado para remoção.`,
-        );
-      }
-      return deletedGame;
-    } catch (error) {
-      // Captura erros de formato de ID inválido (CastError)
-      if (error instanceof MongooseError.CastError) {
-        throw new BadRequestException(
-          `ID "${id}" possui formato inválido para remoção.`,
-        );
       }
       // Re-lança outros erros
       throw error;

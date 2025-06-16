@@ -1,56 +1,40 @@
 // backend/src/users/users.controller.ts
-import {
-  Controller,
-  Get,
-  Post,
-  Put, // Para o método update
-  Delete, // Para o método remove
-  Body,
-  Param,
-  HttpCode,
-  HttpStatus,
-} from '@nestjs/common';
+import { Controller, Get, Param } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { CreateUserDto } from './dtos/create-user.dto'; // Importa o DTO
-import { UpdateUserDto } from './dtos/update-user.dto'; // Importa o DTO
-import { User } from './schemas/user.schema'; // Importa o Schema
+import { User } from './schemas/user.schema';
+import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
 
-@Controller('users') // Define o prefixo da rota para este controlador
+@ApiTags('users')
+@Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  // Rota para criar um novo usuário
-  @Post()
-  @HttpCode(HttpStatus.CREATED) // Retorna status 201 Created
-  async create(@Body() createUserDto: CreateUserDto): Promise<User> {
-    return this.usersService.create(createUserDto);
-  }
-
-  // Rota para buscar todos os usuários
   @Get()
+  @ApiOperation({ summary: 'Retorna todos os usuários cadastrados' })
+  @ApiResponse({
+    status: 200,
+    description: 'Lista de usuários retornada com sucesso.',
+    type: [User],
+  })
   async findAll(): Promise<User[]> {
     return this.usersService.findAll();
   }
 
-  // Rota para buscar um usuário específico pelo ID
   @Get(':id')
+  @ApiOperation({ summary: 'Retorna um usuário específico pelo ID' })
+  @ApiParam({
+    name: 'id',
+    description: 'ID do usuário',
+    example: '60c72b2f9b1d8c001c8e4d22',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Usuário encontrado com sucesso.',
+    type: User,
+  })
+  @ApiResponse({ status: 404, description: 'Usuário não encontrado.' })
+  @ApiResponse({ status: 400, description: 'ID de usuário inválido.' })
   async findOne(@Param('id') id: string): Promise<User> {
     return this.usersService.findOne(id);
-  }
-
-  // Rota para atualizar um usuário pelo ID
-  @Put(':id')
-  async update(
-    @Param('id') id: string,
-    @Body() updateUserDto: UpdateUserDto,
-  ): Promise<User> {
-    return this.usersService.update(id, updateUserDto);
-  }
-
-  // Rota para remover um usuário pelo ID
-  @Delete(':id')
-  @HttpCode(HttpStatus.NO_CONTENT) // Retorna status 204 No Content para remoção bem-sucedida
-  async remove(@Param('id') id: string): Promise<User> {
-    return this.usersService.remove(id);
   }
 }

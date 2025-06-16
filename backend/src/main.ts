@@ -1,10 +1,10 @@
-/* eslint-disable @typescript-eslint/no-unsafe-call */
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -30,6 +30,21 @@ async function bootstrap() {
       transform: true,
     }),
   );
+
+  // --- Configuração do Swagger ---
+  const config = new DocumentBuilder()
+    .setTitle('Epic Games Store - Teste Técnico Edition API') // Título da sua API
+    .setDescription(
+      'Documentação da API do backend da Epic Games Store - Teste Técnico Edition',
+    ) // Descrição da API
+    .setVersion('1.0') // Versão da API
+    .addTag('games', 'Operações relacionadas a jogos') // Adiciona tags para organizar os endpoints
+    .addTag('users', 'Operações relacionadas a usuários')
+    .addTag('transactions', 'Operações relacionadas a transações de compra')
+    .build();
+
+  const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('api-docs', app, document); // 'api-docs' é a URL onde o Swagger UI estará disponível
 
   const port = process.env.PORT || 3000;
   await app.listen(port);

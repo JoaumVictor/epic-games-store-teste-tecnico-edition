@@ -1,20 +1,25 @@
 // backend/src/users/dtos/create-user.dto.ts
 import { IsString, IsEmail, MinLength } from 'class-validator';
+import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateUserDto {
+  @ApiProperty({ description: 'Nome de usuário único', example: 'victor_dev' })
   @IsString()
-  @MinLength(3) // Exige que o username tenha no mínimo 3 caracteres
+  @MinLength(3)
   username: string;
 
-  @IsEmail() // Valida que é um formato de e-mail válido
+  @ApiProperty({
+    description: 'Endereço de e-mail único do usuário',
+    example: 'victor.dev@example.com',
+  })
+  @IsEmail()
   email: string;
 
+  @ApiProperty({
+    description: 'Senha do usuário (mínimo 6 caracteres)',
+    example: 'minhasenhaforte123',
+  })
   @IsString()
-  @MinLength(6) // Exige que a senha tenha no mínimo 6 caracteres (mínimo para ser hasheada depois)
+  @MinLength(6)
   password: string;
-
-  // Se você quiser permitir definir o papel na criação, senão remova
-  // @IsOptional()
-  // @IsEnum(UserRole) // Garante que o papel seja 'user' ou 'admin'
-  // role?: UserRole;
 }
