@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
-// backend/src/transactions/transactions.service.ts
 import {
   Injectable,
   BadRequestException,
@@ -26,284 +25,158 @@ export class TransactionsService {
     @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: Logger,
   ) {}
 
-  async create(
-    createTransactionDto: CreateTransactionDto,
-  ): Promise<Transaction> {
-    const {
-      game: gameId,
-      user: userId,
-      amount,
-      discountApplied,
-    } = createTransactionDto;
+  async create(dto: CreateTransactionDto): Promise<Transaction> {
+    const { game: gameId, user: userId, amount, discountApplied } = dto;
 
-    this.logger.info({
-      message: `Attempting to create transaction`,
-      gameId,
-      userId,
-      amount,
-    });
+    this.logger.info(`Tentando criar transação.`, { gameId, userId, amount });
 
     try {
       const game = await this.gamesService.findOne(gameId);
       if (!game) {
-        this.logger.warn({
-          message: `Transaction failed: Game not found`,
-          gameId,
-        });
+        this.logger.warn(`Jogo com ID "${gameId}" não encontrado.`);
         throw new NotFoundException(`Jogo com ID "${gameId}" não encontrado.`);
       }
-      this.logger.info({
-        message: `Game found: ${game.name}`,
-        gameId: game._id,
-        gameName: game.name,
-      });
 
       const user = await this.usersService.findOne(userId);
       if (!user) {
-        this.logger.warn({
-          message: `Transaction failed: User not found`,
-          userId,
-        });
+        this.logger.warn(`Usuário com ID "${userId}" não encontrado.`);
         throw new NotFoundException(
           `Usuário com ID "${userId}" não encontrado.`,
         );
       }
-      this.logger.info({
-        message: `User found: ${user.username}`,
-        userId: user._id,
-        username: user.username,
-      });
 
-      if (
-        user.gamesBought &&
-        user.gamesBought.some(
-          (boughtGameId) => boughtGameId.toString() === gameId,
-        )
-      ) {
-        this.logger.warn({
-          message: `Transaction failed: User already owns game`,
-          userId: user._id,
-          gameId: game._id,
-          gameName: game.name,
-        });
+      if (user.gamesBought?.some((id) => id.toString() === gameId)) {
+        this.logger.warn(
+          `Usuário "${user.username}" já possui o jogo "${game.name}".`,
+        );
         throw new ConflictException(
-          `O jogo "${game.name}" já foi adicionado à biblioteca do usuário "${user.username}".`,
+          `Usuário "${user.username}" já possui o jogo "${game.name}".`,
         );
       }
 
-      const finalAmount = game.price * (1 - (game.discount || 0) / 100);
-      if (amount !== finalAmount) {
-        this.logger.warn({
-          message: `Value mismatch for transaction. Using DTO amount.`,
-          dtoAmount: amount,
-          calculatedAmount: finalAmount,
-          gameName: game.name,
-        });
+      const valorCalculado = game.price * (1 - (game.discount || 0) / 100);
+      if (amount !== valorCalculado) {
+        this.logger.warn(
+          `Valor informado (${amount}) difere do calculado (${valorCalculado}).`,
+        );
       }
 
-      const createdTransaction = new this.transactionModel({
+      const transacao = new this.transactionModel({
         game: game._id,
         user: user._id,
         transactionDate: new Date(),
-        amount: amount,
-        discountApplied: discountApplied,
+        amount,
+        discountApplied,
       });
 
-      const savedTransaction = await createdTransaction.save();
-      this.logger.info({
-        message: `Transaction saved`,
-        transactionId: savedTransaction._id,
-        userId: user._id,
-        username: user.username,
-        gameId: game._id,
-        gameName: game.name,
-      });
+      const salva = await transacao.save();
 
       await this.usersService.addGameToUserBoughtList(
         user._id as string,
         game._id as string,
       );
-      this.logger.info({
-        message: `Game added to user's bought list`,
-        userId: user._id,
-        username: user.username,
-        gameId: game._id,
-        gameName: game.name,
+
+      this.logger.info(`Transação criada com sucesso.`, {
+        transacaoId: salva._id,
+        usuario: user.username,
+        jogo: game.name,
+        valor: amount,
       });
 
-      this.logger.info({
-        message: `Transaction successful`,
-        user: user.username,
-        game: game.name,
-        finalAmount: amount,
-        transactionId: savedTransaction._id,
-      });
-
-      return savedTransaction;
+      return salva;
     } catch (error: unknown) {
       if (error instanceof MongooseError.CastError) {
-        this.logger.error({
-          message: `Transaction failed: Invalid ID format.`,
-          error: error.message,
-          stack: (error as Error).stack,
-        });
         throw new BadRequestException(
-          'Um dos IDs (jogo ou usuário) possui formato inválido.',
+          'Formato inválido para ID de jogo ou usuário.',
         );
       }
       if (
         error instanceof NotFoundException ||
-        error instanceof ConflictException
+        error instanceof ConflictException ||
+        error instanceof BadRequestException
       ) {
         throw error;
       }
-      if (error instanceof Error) {
-        this.logger.error({
-          message: `Transaction failed: ${error.message}`,
-          error: error.message,
-          stack: error.stack,
-        });
-      } else {
-        this.logger.error({
-          message: `Transaction failed: Unknown error`,
-          error,
-        });
-      }
-      throw error;
+      this.logger.error('Erro ao criar transação.', {
+        erro: error instanceof Error ? error.message : error,
+      });
+      throw new BadRequestException('Erro inesperado ao criar transação.');
     }
   }
 
-  // Método para encontrar todas as transações, opcionalmente filtradas por userId
   async findAll(userId?: string): Promise<Transaction[]> {
-    // <--- Recebe userId
     try {
-      const query: any = {}; // Objeto para construir a query do Mongoose
+      const query: any = {};
       if (userId) {
-        query.user = userId; // Adiciona o filtro por usuário se o userId for fornecido
-        this.logger.info(`Fetching transactions for User ID: ${userId}.`); // <--- Log ajustado
+        query.user = userId;
+        this.logger.info(`Listando transações do usuário ${userId}.`);
       } else {
-        this.logger.info('Fetching all transactions.'); // <--- Log para todas as transações
+        this.logger.info('Listando todas as transações.');
       }
 
       return await this.transactionModel
-        .find(query) // <--- Usa o objeto de query
+        .find(query)
         .populate('game')
         .populate('user')
         .exec();
     } catch (error: unknown) {
-      if (error instanceof Error) {
-        this.logger.error('Error fetching all transactions.', {
-          error: error.message,
-          stack: error.stack,
-          userId,
-        }); // <--- Log ajustado
-      } else {
-        this.logger.error('Error fetching all transactions.', {
-          error,
-          userId,
-        }); // <--- Log ajustado
-      }
+      this.logger.error('Erro ao listar transações.', {
+        erro: error instanceof Error ? error.message : error,
+        userId,
+      });
       throw new BadRequestException('Não foi possível listar as transações.');
     }
   }
 
-  // ... (outros métodos do service, como findOne, remove)
   async findOne(id: string): Promise<Transaction> {
     try {
-      this.logger.info({
-        message: `Fetching transaction with ID: ${id}.`,
-        transactionId: id,
-      });
-      const transaction = await this.transactionModel
+      this.logger.info(`Buscando transação com ID "${id}".`);
+      const transacao = await this.transactionModel
         .findById(id)
         .populate('game')
         .populate('user')
         .exec();
-      if (!transaction) {
-        this.logger.warn({
-          message: `Transaction with ID "${id}" not found.`,
-          transactionId: id,
-        });
+      if (!transacao) {
+        this.logger.warn(`Transação com ID "${id}" não encontrada.`);
         throw new NotFoundException(`Transação com ID "${id}" não encontrada.`);
       }
-      return transaction;
+      return transacao;
     } catch (error: unknown) {
       if (error instanceof MongooseError.CastError) {
-        this.logger.error({
-          message: `Invalid transaction ID format: ${id}.`,
-          transactionId: id,
-          error: error.message,
-          stack: (error as Error).stack,
-        });
         throw new BadRequestException(`ID "${id}" possui formato inválido.`);
       }
-      if (error instanceof Error) {
-        this.logger.error({
-          message: `Error fetching transaction with ID ${id}: ${error.message}`,
-          transactionId: id,
-          error: error.message,
-          stack: error.stack,
-        });
-      } else {
-        this.logger.error({
-          message: `Error fetching transaction with ID ${id}: Unknown error`,
-          transactionId: id,
-          error,
-        });
-      }
+      this.logger.error('Erro ao buscar transação.', {
+        erro: error instanceof Error ? error.message : error,
+      });
       throw error;
     }
   }
 
   async remove(id: string): Promise<Transaction> {
     try {
-      this.logger.info({
-        message: `Attempting to remove transaction with ID: ${id}.`,
-        transactionId: id,
-      });
-      const deletedTransaction = await this.transactionModel
+      this.logger.info(`Removendo transação com ID "${id}".`);
+      const transacaoRemovida = await this.transactionModel
         .findByIdAndDelete(id)
         .exec();
-      if (!deletedTransaction) {
-        this.logger.warn({
-          message: `Transaction with ID "${id}" not found for removal.`,
-          transactionId: id,
-        });
+      if (!transacaoRemovida) {
+        this.logger.warn(
+          `Transação com ID "${id}" não encontrada para remoção.`,
+        );
         throw new NotFoundException(
           `Transação com ID "${id}" não encontrada para remoção.`,
         );
       }
-      this.logger.info({
-        message: `Transaction with ID ${id} removed successfully.`,
-        transactionId: id,
-      });
-      return deletedTransaction;
+      this.logger.info(`Transação com ID "${id}" removida com sucesso.`);
+      return transacaoRemovida;
     } catch (error: unknown) {
       if (error instanceof MongooseError.CastError) {
-        this.logger.error({
-          message: `Invalid transaction ID format for removal: ${id}.`,
-          transactionId: id,
-          error: error.message,
-          stack: (error as Error).stack,
-        });
         throw new BadRequestException(
           `ID "${id}" possui formato inválido para remoção.`,
         );
       }
-      if (error instanceof Error) {
-        this.logger.error({
-          message: `Error removing transaction with ID ${id}: ${error.message}`,
-          transactionId: id,
-          error: error.message,
-          stack: error.stack,
-        });
-      } else {
-        this.logger.error({
-          message: `Error removing transaction with ID ${id}: Unknown error`,
-          transactionId: id,
-          error,
-        });
-      }
+      this.logger.error('Erro ao remover transação.', {
+        erro: error instanceof Error ? error.message : error,
+      });
       throw error;
     }
   }
