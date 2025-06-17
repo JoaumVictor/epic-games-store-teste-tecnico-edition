@@ -33,7 +33,7 @@ interface paymentMethodProps {
 }
 
 export default function Payment() {
-  const { state, totalPriceInCart, dispatch } = useCart();
+  const { cart, totalPriceInCart, dispatch } = useCart();
 
   const [allCreditCards, setAllCreditCards] = useState<creditCardsProps[]>([]);
 
@@ -182,14 +182,14 @@ export default function Payment() {
             <div
               className={classNames(
                 "w-full mb-10 flex items-start justify-center gap-5 flex-col max-h-[450px] overflow-x-hidden py-10 pr-3",
-                state.cart.length <= 3 ? "overflow-y-auto" : "overflow-y-hidden"
+                cart.length <= 3 ? "overflow-y-auto" : "overflow-y-hidden"
               )}
               style={{
                 scrollbarWidth: "thin",
                 scrollbarColor: "#272727 transparent",
               }}
             >
-              {state.cart.map(({ game }) => (
+              {cart.map(({ game }) => (
                 <div className="flex items-center justify-between w-full">
                   <img
                     src={game.banner}
@@ -209,7 +209,7 @@ export default function Payment() {
             </div>
             <div className="flex items-center justify-between w-full">
               <p className="text-black">Total de itens:</p>
-              <p className="text-black">{state.cart.length}</p>
+              <p className="text-black">{cart.length}</p>
             </div>
             <div className="flex items-center justify-between w-full">
               <p className="text-black">Desconto</p>
@@ -218,13 +218,13 @@ export default function Payment() {
             <div className="flex items-center justify-between w-full">
               <p className="text-black">Preço: </p>
               <span className="text-black">
-                {formatterCurrency(totalPriceInCart(state.cart))}
+                {formatterCurrency(totalPriceInCart)}
               </span>
             </div>
             <div className="flex items-center justify-between w-full">
               <p className="my-6 text-black">Subtotal: </p>
               <span className="text-[22px] text-black">
-                {formatterCurrency(totalPriceInCart(state.cart))}
+                {formatterCurrency(totalPriceInCart)}
               </span>
             </div>
             {(selectedPaymentMethod === "pix" ||
@@ -238,7 +238,7 @@ export default function Payment() {
               <Button
                 style="finally"
                 className="!w-full"
-                disabled={state.cart.length === 0 || !finallyButtonDisabled()}
+                disabled={cart.length === 0 || !finallyButtonDisabled()}
                 onClick={() => setModalOpen(true)}
                 label="Fazer pedido"
               />
@@ -250,7 +250,7 @@ export default function Payment() {
           onClose={() => setModalOpen(false)}
           paymentMethod={selectedPaymentMethod}
           selectedCard={selectedCard}
-          value={totalPriceInCart(state.cart)}
+          value={totalPriceInCart}
         />
       </Container>
     </main>

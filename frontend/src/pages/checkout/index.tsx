@@ -7,7 +7,7 @@ import { useNavigate } from "react-router-dom";
 import Container from "@/components/ui/container";
 
 export default function Checkout() {
-  const { state, dispatch, totalPriceInCart } = useCart();
+  const { cart, dispatch, totalPriceInCart } = useCart();
 
   const handleDeleteGame = (gameName: string) => {
     dispatch({ type: "REMOVE_FROM_CART", payload: gameName });
@@ -20,11 +20,11 @@ export default function Checkout() {
       <Container>
         <div>
           <p className="text-3xl">Meu carrinho</p>
-          <p>Total de itens: {state.cart.length}</p>
+          <p>Total de itens: {cart.length}</p>
         </div>
         <div className="flex items-start justify-between w-full">
           <div className="flex flex-col items-start justify-center w-1/2 gap-3 my-10">
-            {state.cart.length === 0 && (
+            {cart.length === 0 && (
               <div className="flex flex-col items-center justify-center w-full gap-4 my-64">
                 <p className="text-xl text-white">Seu carrinho está vazio</p>
                 <img
@@ -34,7 +34,7 @@ export default function Checkout() {
                 />
               </div>
             )}
-            {state.cart.map(({ game }) => (
+            {cart.map(({ game }) => (
               <div className="flex items-center justify-end w-full gap-5">
                 <div
                   className="flex items-start justify-end flex-col gap-3 h-[200px] bg-[#232323] w-full checkoutGameBanner rounded-[8px]"
@@ -79,19 +79,19 @@ export default function Checkout() {
             <div className="flex items-center justify-between w-full">
               <p className="text-white">Preço: </p>
               <span className="text-white">
-                {formatterCurrency(totalPriceInCart(state.cart))}
+                {formatterCurrency(totalPriceInCart)}
               </span>
             </div>
             <div className="flex items-center justify-between w-full">
               <p className="my-6">Subtotal: </p>
               <span className="text-[22px] text-white">
-                {formatterCurrency(totalPriceInCart(state.cart))}
+                {formatterCurrency(totalPriceInCart)}
               </span>
             </div>
             <div>
               <Button
                 style="finally"
-                disabled={state.cart.length === 0}
+                disabled={cart.length === 0}
                 onClick={() => navigate("/payment")}
                 label="Finalizar pedido"
               />

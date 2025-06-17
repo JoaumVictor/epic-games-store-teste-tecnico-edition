@@ -8,17 +8,19 @@ import { useCart } from "@/context/cart";
 import useGames from "@/hooks/useGames";
 import { Game } from "@/types/games";
 import Container from "../../../ui/container";
+import HeroBannerSkeleton from "@/components/shared/skeletons/heroBanner";
 
 export default function HeroBanner() {
-  const { games, loading, error } = useGames();
+  const { games, loading } = useGames();
+  const { dispatch, cart } = useCart();
+
+  console.log(cart);
 
   useEffect(() => {
     if (games.length > 0) {
       setGameShow(games[0]);
     }
   }, [games]);
-
-  const { dispatch } = useCart();
 
   const [gameShow, setGameShow] = useState<Game>();
   const [exitAnimate, setExitAnimate] = useState(false);
@@ -34,7 +36,6 @@ export default function HeroBanner() {
   };
 
   const handleAddGameToCart = (game: Game) => {
-    console.log("Adicionando jogo ao carrinho:", game);
     dispatch({ type: "ADD_TO_CART", payload: game });
   };
 
@@ -48,6 +49,10 @@ export default function HeroBanner() {
     hidden: { x: "5%", opacity: 0 },
     visible: { x: 0, opacity: 1 },
     exit: { x: "-10%", opacity: 0.4 },
+  };
+
+  const gameExistInCart = () => {
+    return cart.some((game) => game.game.name === gameShow?.name);
   };
 
   return (
@@ -70,11 +75,7 @@ export default function HeroBanner() {
           </button>
         ))}
       </div>
-      {loading && (
-        <div className="w-full h-[750px] flex items-center justify-center">
-          <p className="text-white">Carregando jogos...</p>
-        </div>
-      )}
+      {loading && <HeroBannerSkeleton />}
       {loading === false && gameShow && (
         <div className="flex items-center justify-between w-full gap-3">
           <div className="w-4/5 overflow-hidden">
@@ -118,7 +119,10 @@ export default function HeroBanner() {
               </p>
               <Button
                 onClick={() => handleAddGameToCart(gameShow)}
-                label="Adicionar ao carrinho"
+                disabled={gameExistInCart()}
+                label={
+                  gameExistInCart() ? "Já adicionado" : "Adicionar ao carrinho"
+                }
                 className="z-10 transition-all"
                 style="tertiary"
               />
@@ -129,7 +133,7 @@ export default function HeroBanner() {
               <div
                 onClick={() => handleGameClick(game)}
                 className={classNames(
-                  "w-full cursor-pointer px-8 py-4 rounded-[8px] flex items-center justify-between flex-row gap-2 hover:bg-[#292929] transition-all",
+                  "w-full cursor-pointer px-8 py-4 rounded-[8px] min-h-[100px] flex items-center justify-between flex-row gap-2 hover:bg-[#292929] transition-all",
                   gameShow?.name === game.name && "bg-[#292929]"
                 )}
               >

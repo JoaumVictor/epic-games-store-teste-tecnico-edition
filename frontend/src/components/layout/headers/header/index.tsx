@@ -10,7 +10,7 @@ import Cart from "@/components/pages/home/cart";
 
 function Header() {
   const [openCart, setOpenCart] = useState(false);
-  const { state } = useCart();
+  const { cart } = useCart();
 
   return (
     <header className="px-10 mb-8">
@@ -29,7 +29,7 @@ function Header() {
         ))}
       </div>
       <div className="userBox">
-        <p className="mr-1">{state.cart.length}</p>
+        <p className="mr-1">{cart.length}</p>
         <PiShoppingCartSimpleFill
           onClick={() => setOpenCart(true)}
           className="icon"

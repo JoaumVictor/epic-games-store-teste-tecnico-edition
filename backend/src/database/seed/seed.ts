@@ -93,7 +93,7 @@ async function bootstrap() {
       cover:
         'https://cdn.awsli.com.br/2500x2500/1610/1610163/produto/177700809/poster-grand-theft-auto-v-gta-5-b-5ceeda64.jpg',
       banner:
-        'https://i.pinimg.com/1200x/ef/5e/bb/ef5ebb586cbcfe90398c016c72ea1e99.jpg',
+        'https://i.redd.it/logo-comparison-gtav-vs-gtavi-v0-f39oasf942ce1.png?width=2400&format=png&auto=webp&s=606326c7f350f41cdf00126b8f50cadc3efa40ed',
       price: 99.99,
       discount: 40,
       genre: ['Ação', 'Aventura'],

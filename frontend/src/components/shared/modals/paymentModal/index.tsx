@@ -40,7 +40,7 @@ const PaymentModal: React.FC<ModalProps> = ({
   selectedCard,
   value,
 }) => {
-  const { state } = useCart();
+  const { cart } = useCart();
   const { addCreditCard, removeCreditCard } = useCreditCard();
 
   const validationSchema = Yup.object({
@@ -203,7 +203,7 @@ const PaymentModal: React.FC<ModalProps> = ({
       type: "creditCard",
       formattedValue: formatterCurrency(value),
       value: value,
-      products: state.cart,
+      products: cart,
       newCreditCard: values,
     });
   };
@@ -215,7 +215,7 @@ const PaymentModal: React.FC<ModalProps> = ({
         type: "creditCard",
         formatedValue: formatterCurrency(value),
         value: value,
-        products: state.cart,
+        products: cart,
         cardId: selectedCard?.id,
       }
     );
