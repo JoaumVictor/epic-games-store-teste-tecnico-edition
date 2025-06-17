@@ -1,13 +1,10 @@
-/* eslint-disable react/style-prop-object */
-import LimitScreen from "@/components/limitScreen";
 import { useCart } from "@/context/cart";
-import games from "@/mocks/games";
 import { useEffect, useState } from "react";
 import { classNames, formatterCurrency } from "@/utils/shared";
 import Button from "@/components/ui/button";
 import CreditCardDropdown, {
   creditCardsProps,
-} from "@/components/creditCardDropdown";
+} from "@/components/pages/payment/creditCardDropdown";
 import { useCreditCard } from "@/context/creditCard";
 import { AiOutlineBarcode } from "react-icons/ai";
 import {
@@ -19,7 +16,8 @@ import {
 import { FaPix } from "react-icons/fa6";
 import { IoCloseOutline } from "react-icons/io5";
 import { Link } from "react-router-dom";
-import PaymentModal from "@/components/modals/PaymentModal";
+import PaymentModal from "@/components/shared/modals/paymentModal";
+import Container from "@/components/ui/container";
 
 type selectedPaymentMethodType =
   | "pix"
@@ -99,7 +97,7 @@ export default function Payment() {
 
   return (
     <main className="bg-white h-[100vh]">
-      <LimitScreen className="px-10">
+      <Container className="px-10">
         <div className="flex items-start justify-center w-full gap-10">
           <div className="flex flex-col items-start justify-start w-7/12 gap-3 pt-10">
             <p className="mb-6 text-2xl text-black">Finalizar compra</p>
@@ -256,7 +254,7 @@ export default function Payment() {
           selectedCard={selectedCard}
           value={totalPriceInCart(state.cart)}
         />
-      </LimitScreen>
+      </Container>
     </main>
   );
 }

@@ -4,9 +4,9 @@ import { useState } from "react";
 
 import tags from "@/mocks/tags";
 import "./style.scss";
-import Cart from "@/components/cart";
 import { useCart } from "@/context/cart";
 import { Link } from "react-router-dom";
+import Cart from "@/components/pages/home/cart";
 
 function Header() {
   const [openCart, setOpenCart] = useState(false);

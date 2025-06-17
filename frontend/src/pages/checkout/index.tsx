@@ -1,12 +1,10 @@
 /* eslint-disable react/style-prop-object */
-import CheckoutHeader from "@/components/checkoutHeader";
-import LimitScreen from "@/components/limitScreen";
+import CheckoutHeader from "@/components/layout/headers/checkoutHeader";
 import { useCart } from "@/context/cart";
-import games from "@/mocks/games";
-import { useEffect } from "react";
 import { formatterCurrency } from "@/utils/shared";
 import Button from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
+import Container from "@/components/ui/container";
 
 export default function Checkout() {
   const { state, dispatch, totalPriceInCart } = useCart();
@@ -19,7 +17,7 @@ export default function Checkout() {
   return (
     <main>
       <CheckoutHeader />
-      <LimitScreen>
+      <Container>
         <div>
           <p className="text-3xl">Meu carrinho</p>
           <p>Total de itens: {state.cart.length}</p>
@@ -100,7 +98,7 @@ export default function Checkout() {
             </div>
           </div>
         </div>
-      </LimitScreen>
+      </Container>
     </main>
   );
 }

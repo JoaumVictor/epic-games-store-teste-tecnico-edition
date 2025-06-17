@@ -1,11 +1,11 @@
 import { classNames } from "@/utils/shared";
 
-interface LimitScreenProps {
+interface ContainerProps {
   children: React.ReactNode;
   className?: string;
 }
 
-export default function LimitScreen({ children, className }: LimitScreenProps) {
+export default function Container({ children, className }: ContainerProps) {
   return (
     <div className={classNames("max-w-screen-2xl mx-auto", className)}>
       {children}

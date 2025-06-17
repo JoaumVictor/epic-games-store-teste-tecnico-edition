@@ -1,5 +1,5 @@
 import React, { createContext, useContext, ReactNode } from "react";
-import { creditCardsProps } from "@/components/creditCardDropdown";
+import { creditCardsProps } from "@/components/pages/payment/creditCardDropdown";
 
 interface CreditCardContextProps {
   creditCards: creditCardsProps[];

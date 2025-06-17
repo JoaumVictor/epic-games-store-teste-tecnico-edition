@@ -1,10 +1,10 @@
 import { useCart } from "@/context/cart";
-import Button from "../ui/button";
 
 import { FaTrash } from "react-icons/fa";
 import { formatterCurrency } from "@/utils/shared";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "react-router-dom";
+import Button from "@/components/ui/button";
 
 interface CartProps {
   setOpenCart: (value: boolean) => void;

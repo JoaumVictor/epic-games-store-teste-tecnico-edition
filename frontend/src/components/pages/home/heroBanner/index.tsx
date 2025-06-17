@@ -1,13 +1,13 @@
 import "./style.scss";
 import { useEffect, useState } from "react";
-import LimitScreen from "../limitScreen";
 import { CiSearch } from "react-icons/ci";
+import { motion } from "framer-motion";
 import { classNames, formatterCurrency } from "@/utils/shared";
 import Button from "@/components/ui/button";
 import { useCart } from "@/context/cart";
-import { motion } from "framer-motion";
 import useGames from "@/hooks/useGames";
 import { Game } from "@/types/games";
+import Container from "../../../ui/container";
 
 export default function HeroBanner() {
   const { games, loading, error } = useGames();
@@ -52,7 +52,7 @@ export default function HeroBanner() {
   };
 
   return (
-    <LimitScreen>
+    <Container>
       <div className="flex items-center justify-start gap-5 my-5">
         <div className="p-2 text-white flex bg-[#2d2d2d] rounded-[14px] items-center justify-center gap-2 text-[14px]">
           <CiSearch className="text-white text-[16px] ml-1" />
@@ -145,6 +145,6 @@ export default function HeroBanner() {
           </div>
         </div>
       )}
-    </LimitScreen>
+    </Container>
   );
 }
