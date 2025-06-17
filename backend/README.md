@@ -82,7 +82,7 @@ Para facilitar o uso e entendimento de todas as rotas disponíveis, suas entrada
 A documentação está disponível em:
 
 ```
-  http://localhost:3000/api
+  http://localhost:3000/api-docs
 ```
 
 Lá você poderá explorar todas as rotas, ver os parâmetros esperados, os exemplos de request e response, e testar as chamadas diretamente pelo navegador.

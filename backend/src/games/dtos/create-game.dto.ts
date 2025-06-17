@@ -10,7 +10,7 @@ import {
   IsDateString,
   IsBoolean,
 } from 'class-validator';
-import { ApiProperty } from '@nestjs/swagger'; // <--- Importa ApiProperty
+import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateGameDto {
   @ApiProperty({
