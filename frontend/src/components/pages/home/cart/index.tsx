@@ -69,11 +69,7 @@ export default function Cart({ setOpenCart }: CartProps) {
                   <p className="text-white text-[18px]">
                     {cutLongNameIfNecessary(item.game.name)}
                   </p>
-                  <p>
-                    {item.game.price === "free"
-                      ? "Grátis"
-                      : formatterCurrency(item.game.price)}
-                  </p>
+                  <p>{formatterCurrency(item.game.price)}</p>
                 </div>
                 <FaTrash
                   onClick={() => handleDeleteGame(item.game.name)}

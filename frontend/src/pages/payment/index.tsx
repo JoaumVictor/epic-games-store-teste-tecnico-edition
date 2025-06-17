@@ -201,9 +201,7 @@ export default function Payment() {
                       {game.name}
                     </p>
                     <p className="text-[#8e8e8e] text-end w-full">
-                      {game.price === "free"
-                        ? "grátis"
-                        : formatterCurrency(Number(game.price))}
+                      {formatterCurrency(Number(game.price))}
                     </p>
                   </div>
                 </div>

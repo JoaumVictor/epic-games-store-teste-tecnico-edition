@@ -1,3 +1,4 @@
+import { Game } from "@/types/games";
 import React, {
   createContext,
   useContext,
@@ -6,24 +7,13 @@ import React, {
   Dispatch,
 } from "react";
 
-export interface GameProps {
-  name: string;
-  titleImage: string;
-  status: string;
-  price: number | "free";
-  description: string;
-  cover: string;
-  banner: string;
-}
-
 export interface CartItem {
-  game: GameProps;
+  game: Game;
 }
 
 type CartAction =
-  | { type: "ADD_TO_CART"; payload: GameProps }
-  | { type: "REMOVE_FROM_CART"; payload: string }
-  | { type: "SET_MOCKED_GAMES"; payload: GameProps[] };
+  | { type: "ADD_TO_CART"; payload: Game }
+  | { type: "REMOVE_FROM_CART"; payload: string };
 
 type TotalPrice = (cart: CartItem[]) => number;
 
@@ -64,14 +54,11 @@ export const useCart = () => {
 
 const totalPriceInCart = (cart: CartItem[]): number => {
   return cart.reduce((acc, item) => {
-    if (item.game.price === "free") {
-      return acc;
-    }
     return acc + item.game.price;
   }, 0);
 };
 
-const addToCart = (state: CartState, payload: GameProps): CartState => {
+const addToCart = (state: CartState, payload: Game): CartState => {
   const existingCartItem = state.cart.find(
     (item) => item.game.name === payload.name
   );
@@ -91,11 +78,6 @@ const addToCart = (state: CartState, payload: GameProps): CartState => {
   }
 };
 
-const setMockedGames = (state: CartState, payload: GameProps[]): CartState => ({
-  ...state,
-  cart: payload.map((game) => ({ game })),
-});
-
 const removeFromCart = (state: CartState, payload: string): CartState => ({
   ...state,
   cart: state.cart.filter((item) => item.game.name !== payload),
@@ -108,9 +90,6 @@ const cartReducer = (state: CartState, action: CartAction): CartState => {
 
     case "REMOVE_FROM_CART":
       return removeFromCart(state, action.payload);
-
-    case "SET_MOCKED_GAMES":
-      return setMockedGames(state, action.payload);
 
     default:
       return state;

@@ -1,6 +1,6 @@
 import React, { createContext, useState, useEffect, useMemo } from "react";
-import axios from "axios";
 import { Game } from "@/types/games";
+import api from "@/api";
 
 interface GamesContextValue {
   games: Game[];
@@ -24,7 +24,7 @@ export const GamesProvider: React.FC<React.PropsWithChildren<{}>> = ({
       try {
         setLoading(true);
         setError(null);
-        const response = await axios.get<Game[]>("http://localhost:3000/games");
+        const response = await api.get<Game[]>("http://localhost:3000/games");
         setGames(response.data);
         setLoading(false);
       } catch (err) {

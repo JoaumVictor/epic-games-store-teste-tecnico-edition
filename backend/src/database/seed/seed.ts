@@ -37,9 +37,10 @@ async function bootstrap() {
       name: 'Cyberpunk 2077',
       description:
         'Um RPG de ação e aventura em mundo aberto ambientado em Night City.',
-      cover: 'https://placehold.co/400x600/000000/FFFFFF?text=Cyberpunk+2077',
+      cover:
+        'https://cdna.artstation.com/p/assets/images/images/033/037/886/large/artur-tarnowski-malemain.jpg?1608208334',
       banner:
-        'https://placehold.co/1200x400/000000/FFFFFF?text=Cyberpunk+2077+Banner',
+        'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e6/Cyberpunk_2077_logo.svg/2560px-Cyberpunk_2077_logo.svg.png',
       price: 199.99,
       discount: 25,
       genre: ['RPG', 'Ação', 'Ficção Científica'],
@@ -54,9 +55,10 @@ async function bootstrap() {
       name: 'The Witcher 3: Wild Hunt',
       description:
         'Acompanhe Geralt de Rivia em uma épica aventura para encontrar Ciri.',
-      cover: 'https://placehold.co/400x600/333333/FFFFFF?text=Witcher+3',
+      cover:
+        'https://www.thewitcher.com/_next/image?url=https%3A%2F%2Fstatic.cdprojektred.com%2Fcms.cdprojektred.com%2F16x9_big%2Ffcaa0ba91e2368e2aef8c0d556692307768fad49-1920x1080.jpg&w=1920&q=75',
       banner:
-        'https://placehold.co/1200x400/333333/FFFFFF?text=Witcher+3+Banner',
+        'https://upload.wikimedia.org/wikipedia/commons/thumb/d/da/EN_The-Witcher-3_Logo-Black_RGB.svg/2560px-EN_The-Witcher-3_Logo-Black_RGB.svg.png',
       price: 149.99,
       discount: 50,
       genre: ['RPG', 'Fantasia'],
@@ -71,8 +73,10 @@ async function bootstrap() {
       name: 'Red Dead Redemption 2',
       description:
         'Uma história épica da vida no implacável coração da América.',
-      cover: 'https://placehold.co/400x600/660000/FFFFFF?text=RDR2',
-      banner: 'https://placehold.co/1200x400/660000/FFFFFF?text=RDR2+Banner',
+      cover:
+        'https://cdn.rocketchainsaw.com.au/wp-content/uploads/2018/05/Red-Dead-Redemption-2-New-Logo.jpg',
+      banner:
+        'https://upload.wikimedia.org/wikipedia/commons/2/22/Red_Dead_Redemption_2_Logo.png',
       price: 179.99,
       discount: 30,
       genre: ['Ação', 'Aventura', 'Western'],
@@ -84,27 +88,12 @@ async function bootstrap() {
       isFeatured: false,
     },
     {
-      name: 'Minecraft',
-      description:
-        'Construa mundos, aventure-se e crie em um ambiente de blocos.',
-      cover: 'https://placehold.co/400x600/4CAF50/FFFFFF?text=Minecraft',
-      banner:
-        'https://placehold.co/1200x400/4CAF50/FFFFFF?text=Minecraft+Banner',
-      price: 89.99,
-      discount: 0,
-      genre: ['Sandbox', 'Aventura', 'Construção'],
-      releaseDate: new Date('2011-11-18'),
-      developer: 'Mojang Studios',
-      publisher: 'Xbox Game Studios',
-      platforms: ['PC', 'Mobile', 'Consoles'],
-      rating: 4.8,
-      isFeatured: true,
-    },
-    {
       name: 'Grand Theft Auto V',
       description: 'Um jogo de ação e aventura em mundo aberto.',
-      cover: 'https://placehold.co/400x600/F44336/FFFFFF?text=GTA+V',
-      banner: 'https://placehold.co/1200x400/F44336/FFFFFF?text=GTA+V+Banner',
+      cover:
+        'https://cdn.awsli.com.br/2500x2500/1610/1610163/produto/177700809/poster-grand-theft-auto-v-gta-5-b-5ceeda64.jpg',
+      banner:
+        'https://i.pinimg.com/1200x/ef/5e/bb/ef5ebb586cbcfe90398c016c72ea1e99.jpg',
       price: 99.99,
       discount: 40,
       genre: ['Ação', 'Aventura'],
@@ -115,29 +104,15 @@ async function bootstrap() {
       rating: 4.7,
       isFeatured: false,
     },
-    {
-      name: 'Among Us',
-      description: 'Um jogo de dedução social em um cenário espacial.',
-      cover: 'https://placehold.co/400x600/FFC107/000000?text=Among+Us',
-      banner:
-        'https://placehold.co/1200x400/FFC107/000000?text=Among+Us+Banner',
-      price: 29.99,
-      discount: 10,
-      genre: ['Social Deduction', 'Casual'],
-      releaseDate: new Date('2018-06-15'),
-      developer: 'Innersloth',
-      publisher: 'Innersloth',
-      platforms: ['PC', 'Mobile', 'Nintendo Switch'],
-      rating: 3.9,
-      isFeatured: false,
-    },
+
     {
       name: 'Elden Ring',
       description:
         'Um RPG de ação de fantasia épica em um vasto mundo sombrio.',
-      cover: 'https://placehold.co/400x600/795548/FFFFFF?text=Elden+Ring',
+      cover:
+        'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS__eBA_kN-v83GvCsfu9uhywzGCj4HROBwNw&s',
       banner:
-        'https://placehold.co/1200x400/795548/FFFFFF?text=Elden+Ring+Banner',
+        'https://cdn2.steamgriddb.com/logo/069026dd46efb390001a2661e32c84c4.png',
       price: 249.99,
       discount: 0,
       genre: ['RPG', 'Ação', 'Fantasia'],
@@ -152,9 +127,10 @@ async function bootstrap() {
       name: 'God of War (2018)',
       description:
         'Kratos e seu filho Atreus embarcam em uma jornada épica no reino nórdico.',
-      cover: 'https://placehold.co/400x600/2196F3/FFFFFF?text=God+of+War',
+      cover:
+        'https://static0.gamerantimages.com/wordpress/wp-content/uploads/2022/06/god-of-war-2018-cover-art.jpg',
       banner:
-        'https://placehold.co/1200x400/2196F3/FFFFFF?text=God+of+War+Banner',
+        'https://upload.wikimedia.org/wikipedia/pt/4/4b/God_of_War_2018_logo.png',
       price: 159.99,
       discount: 20,
       genre: ['Ação', 'Aventura'],
@@ -164,38 +140,6 @@ async function bootstrap() {
       platforms: ['PS4', 'PC'],
       rating: 5.0,
       isFeatured: false,
-    },
-    {
-      name: 'Stardew Valley',
-      description:
-        'Transforme uma fazenda abandonada em uma vibrante fazenda dos seus sonhos.',
-      cover: 'https://placehold.co/400x600/8BC34A/FFFFFF?text=Stardew+Valley',
-      banner:
-        'https://placehold.co/1200x400/8BC34A/FFFFFF?text=Stardew+Valley+Banner',
-      price: 49.99,
-      discount: 0,
-      genre: ['Simulação', 'RPG'],
-      releaseDate: new Date('2016-02-26'),
-      developer: 'ConcernedApe',
-      publisher: 'ConcernedApe',
-      platforms: ['PC', 'Switch', 'PS4', 'Xbox One', 'Mobile'],
-      rating: 4.8,
-      isFeatured: false,
-    },
-    {
-      name: 'Hades',
-      description: 'Um roguelike de ação onde você desafia o deus da morte.',
-      cover: 'https://placehold.co/400x600/9C27B0/FFFFFF?text=Hades',
-      banner: 'https://placehold.co/1200x400/9C27B0/FFFFFF?text=Hades+Banner',
-      price: 79.99,
-      discount: 10,
-      genre: ['Roguelike', 'Ação'],
-      releaseDate: new Date('2020-09-17'),
-      developer: 'Supergiant Games',
-      publisher: 'Supergiant Games',
-      platforms: ['PC', 'Switch', 'PS4', 'Xbox One'],
-      rating: 4.9,
-      isFeatured: true,
     },
   ];
 

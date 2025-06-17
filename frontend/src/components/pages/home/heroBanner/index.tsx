@@ -16,7 +16,6 @@ export default function HeroBanner() {
     if (games.length > 0) {
       setGameShow(games[0]);
     }
-    console.log(games);
   }, [games]);
 
   const { dispatch } = useCart();
@@ -36,7 +35,7 @@ export default function HeroBanner() {
 
   const handleAddGameToCart = (game: Game) => {
     console.log("Adicionando jogo ao carrinho:", game);
-    // dispatch({ type: "ADD_TO_CART", payload: game });
+    dispatch({ type: "ADD_TO_CART", payload: game });
   };
 
   const gameBannerVariants = {
