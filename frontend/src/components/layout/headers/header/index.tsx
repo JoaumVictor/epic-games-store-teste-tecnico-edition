@@ -1,11 +1,9 @@
+import "./style.scss";
 import { AiOutlineGlobal, AiOutlineUser } from "react-icons/ai";
 import { PiShoppingCartSimpleFill } from "react-icons/pi";
 import { useState } from "react";
-
 import tags from "@/mocks/tags";
-import "./style.scss";
 import { useCart } from "@/context/cart";
-import { Link } from "react-router-dom";
 import Cart from "@/components/pages/home/cart";
 
 function Header() {
@@ -15,15 +13,18 @@ function Header() {
   return (
     <header className="px-10 mb-8">
       <div className="tagsBox">
-        <Link to="/" className="logoLink">
+        <a href="/" className="logoLink">
           <img
             src="https://logodownload.org/wp-content/uploads/2020/10/epic-games-logo.png"
             alt="epicLogo"
             className="logo"
           />
-        </Link>
+        </a>
         {tags.map((tag) => (
-          <p className="text-gray-500 transition-all tag hover:text-white">
+          <p
+            key={tag}
+            className="text-gray-500 transition-all tag hover:text-white"
+          >
             {tag.toUpperCase()}
           </p>
         ))}

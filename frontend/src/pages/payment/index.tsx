@@ -33,7 +33,7 @@ interface paymentMethodProps {
 }
 
 export default function Payment() {
-  const { cart, totalPriceInCart, dispatch } = useCart();
+  const { cart, totalPriceInCart } = useCart();
 
   const [allCreditCards, setAllCreditCards] = useState<creditCardsProps[]>([]);
 
@@ -96,7 +96,7 @@ export default function Payment() {
   const [modalOpen, setModalOpen] = useState(false);
 
   return (
-    <main className="bg-white h-[100vh]">
+    <main className="bg-white min-h-[100vh]">
       <Container className="px-10">
         <div className="flex items-start justify-center w-full gap-10">
           <div className="flex flex-col items-start justify-start w-7/12 gap-3 pt-10">
@@ -122,9 +122,10 @@ export default function Payment() {
             <p className="my-4 text-xl text-black">
               Outros métodos de pagamento
             </p>
-            {paymentMethods.map((method) => (
+            {paymentMethods.map((method, i) => (
               <div
                 onClick={() => setSelectedPaymentMethod(method.paymentMethod)}
+                key={i}
                 className={classNames(
                   "flex items-start flex-col justify-center cursor-pointer w-full gap-3 bg-[#efefef] hover:bg-[#dddddd] transition-all rounded-[8px] min-h-[100px] p-10",
                   selectedPaymentMethod === method.paymentMethod &&

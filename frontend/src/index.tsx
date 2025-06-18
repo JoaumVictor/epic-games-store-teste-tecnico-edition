@@ -5,6 +5,7 @@ import App from "./App";
 import { CartProvider } from "./context/cart";
 import { CreditCardProvider } from "./context/creditCard";
 import { GamesProvider } from "./context/gamesContext";
+import { UserProvider } from "./context/userContext";
 
 const root = ReactDOM.createRoot(
   document.getElementById("root") as HTMLElement
@@ -12,12 +13,14 @@ const root = ReactDOM.createRoot(
 
 root.render(
   <React.StrictMode>
-    <GamesProvider>
-      <CreditCardProvider>
-        <CartProvider>
-          <App />
-        </CartProvider>
-      </CreditCardProvider>
-    </GamesProvider>
+    <UserProvider>
+      <GamesProvider>
+        <CreditCardProvider>
+          <CartProvider>
+            <App />
+          </CartProvider>
+        </CreditCardProvider>
+      </GamesProvider>
+    </UserProvider>
   </React.StrictMode>
 );

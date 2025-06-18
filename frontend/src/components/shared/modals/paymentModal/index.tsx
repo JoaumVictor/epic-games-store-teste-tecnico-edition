@@ -1,4 +1,4 @@
-import { Fragment } from "react";
+import { Fragment, useState } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import Button from "@/components/ui/button";
 import { formatterCurrency, isLuhnValid } from "@/utils/shared";
@@ -9,7 +9,9 @@ import * as Yup from "yup";
 import { creditCardsProps } from "@/components/pages/payment/creditCardDropdown";
 import { FaCreditCard } from "react-icons/fa";
 import { useCart } from "@/context/cart";
-import { useCreditCard } from "@/context/creditCard";
+import useUser from "@/hooks/useUser";
+import api from "@/api";
+import axios from "axios";
 
 interface ModalProps {
   isOpen: boolean;
@@ -40,8 +42,15 @@ const PaymentModal: React.FC<ModalProps> = ({
   selectedCard,
   value,
 }) => {
-  const { cart } = useCart();
-  const { addCreditCard, removeCreditCard } = useCreditCard();
+  const { cart, dispatch } = useCart();
+  const { user } = useUser();
+
+  const [paymentProcessing, setPaymentProcessing] = useState(false);
+  const [paymentSuccess, setPaymentSuccess] = useState<boolean | null>(null);
+  const [paymentMessage, setPaymentMessage] = useState<string | null>(null);
+
+  if (user) console.log(user);
+  // AQUI EU UTILIZARIA OS DADOS DO CARTÃO DO USUÁRIO QUE VEM DA API, NA MESMA PEGADA DO IFOOD
 
   const validationSchema = Yup.object({
     cardNumber: Yup.string()
@@ -197,8 +206,6 @@ const PaymentModal: React.FC<ModalProps> = ({
   const handleNewCreditCardPayment = (
     values: handleNewCreditCardPaymentProps
   ) => {
-    // addCreditCard({})
-
     console.log("Pagamento via novo cartão do usuário", {
       type: "creditCard",
       formattedValue: formatterCurrency(value),
@@ -208,23 +215,90 @@ const PaymentModal: React.FC<ModalProps> = ({
     });
   };
 
-  const handleUserCreditCardPayment = () => {
-    console.log(
-      "Usuário faz a compra usando o cartão selecionado, detalhes do pagamento:",
-      {
-        type: "creditCard",
-        formatedValue: formatterCurrency(value),
-        value: value,
-        products: cart,
-        cardId: selectedCard?.id,
+  const handleUserCreditCardPayment = async () => {
+    if (!user || !user._id) {
+      setPaymentMessage(
+        "Erro: Usuário não identificado. Faça login ou recarregue a página."
+      );
+      setPaymentSuccess(false);
+      return;
+    }
+
+    if (cart.length === 0) {
+      setPaymentMessage(
+        "Erro: Carrinho vazio. Adicione jogos antes de finalizar a compra."
+      );
+      setPaymentSuccess(false);
+      return;
+    }
+
+    setPaymentProcessing(true);
+    setPaymentMessage(null);
+    setPaymentSuccess(null);
+
+    // feitas as validações, seguimos com o pagamento
+
+    const transactionsToCreate = cart.map((item) => ({
+      game: item.game._id, // ID do jogo
+      user: user._id, // ID do usuário logado
+      amount: item.game.price * (1 - (item.game.discount || 0) / 100), // Valor final do item
+      discountApplied: item.game.discount || 0,
+    }));
+
+    try {
+      const responses = await Promise.all(
+        transactionsToCreate.map((transactionData) =>
+          api.post("http://localhost:3000/transactions", transactionData)
+        )
+      );
+
+      console.log(
+        "Transações criadas com sucesso!",
+        responses.map((res) => res.data)
+      );
+      setPaymentMessage(
+        `Compra finalizada com sucesso! Total: ${formatterCurrency(value)}`
+      );
+      setPaymentSuccess(true);
+      dispatch({ type: "CLEAR_CART" }); // Limpar o carrinho após a compra
+    } catch (error: any) {
+      console.error("Erro ao processar o pagamento:", error);
+      let errorMessage = "Erro ao processar o pagamento. Tente novamente.";
+
+      if (axios.isAxiosError(error) && error.response) {
+        // Erros do backend (NestJS)
+        if (error.response.status === 404) {
+          errorMessage =
+            "Jogo ou usuário não encontrado. Por favor, verifique os itens.";
+        } else if (error.response.status === 409) {
+          errorMessage =
+            error.response.data.message ||
+            "Um dos jogos já está na sua biblioteca.";
+        } else if (error.response.status === 400) {
+          errorMessage =
+            error.response.data.message || "Dados inválidos para a transação.";
+        } else {
+          errorMessage = `Erro do servidor: ${error.response.status} - ${
+            error.response.data.message || "Erro desconhecido."
+          }`;
+        }
       }
-    );
+
+      setPaymentMessage(errorMessage);
+      setPaymentSuccess(false);
+    } finally {
+      setPaymentProcessing(false);
+    }
   };
 
   const buttonContent = {
     userCreditCard: (
       <Button
-        label={`Pagar ${formatterCurrency(value)}`}
+        label={
+          paymentProcessing
+            ? "Processando..."
+            : `Pagar ${formatterCurrency(value)}`
+        }
         style="finally"
         onClick={handleUserCreditCardPayment}
       />

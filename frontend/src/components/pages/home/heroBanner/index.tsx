@@ -9,12 +9,12 @@ import useGames from "@/hooks/useGames";
 import { Game } from "@/types/games";
 import Container from "../../../ui/container";
 import HeroBannerSkeleton from "@/components/shared/skeletons/heroBanner";
+import useUser from "@/hooks/useUser";
 
 export default function HeroBanner() {
   const { games, loading } = useGames();
   const { dispatch, cart } = useCart();
-
-  console.log(cart);
+  const { user } = useUser();
 
   useEffect(() => {
     if (games.length > 0) {
@@ -32,7 +32,7 @@ export default function HeroBanner() {
     setTimeout(() => {
       setGameShow(game);
       setExitAnimate(false);
-    }, 1000);
+    }, 150);
   };
 
   const handleAddGameToCart = (game: Game) => {
@@ -55,6 +55,10 @@ export default function HeroBanner() {
     return cart.some((game) => game.game.name === gameShow?.name);
   };
 
+  const gameExistInAccount = () => {
+    return user?.gamesBought?.some((id) => id === gameShow?._id);
+  };
+
   return (
     <Container>
       <div className="flex items-center justify-start gap-5 my-5">
@@ -66,9 +70,9 @@ export default function HeroBanner() {
             className="rounded-[12px] bg-transparent outline-none pl-1"
           />
         </div>
-        {tags.map((tag, index) => (
+        {tags.map((tag) => (
           <button
-            key={index}
+            key={tag}
             className="text-gray-300 transition-all hover:text-white"
           >
             {tag}
@@ -117,21 +121,33 @@ export default function HeroBanner() {
               <p className=" text-white rounded-[8px] z-10">
                 A partir de {formatterCurrency(gameShow?.price ?? 100)}
               </p>
-              <Button
-                onClick={() => handleAddGameToCart(gameShow)}
-                disabled={gameExistInCart()}
-                label={
-                  gameExistInCart() ? "Já adicionado" : "Adicionar ao carrinho"
-                }
-                className="z-10 transition-all"
-                style="tertiary"
-              />
+              {!gameExistInAccount() ? (
+                <Button
+                  onClick={() => handleAddGameToCart(gameShow)}
+                  disabled={gameExistInCart()}
+                  label={
+                    gameExistInCart()
+                      ? "Já adicionado"
+                      : "Adicionar ao carrinho"
+                  }
+                  className="z-10 transition-all"
+                  style="tertiary"
+                />
+              ) : (
+                <Button
+                  onClick={() => {}}
+                  label={"Ver na biblioteca"}
+                  className="z-10 transition-all"
+                  style="tertiary"
+                />
+              )}
             </motion.div>
           </div>
           <div className="w-1/5 flex items-center justify-between flex-col min-h-[750px]">
             {games.slice(0, 6).map((game) => (
               <div
                 onClick={() => handleGameClick(game)}
+                key={game._id}
                 className={classNames(
                   "w-full cursor-pointer px-8 py-4 rounded-[8px] min-h-[100px] flex items-center justify-between flex-row gap-2 hover:bg-[#292929] transition-all",
                   gameShow?.name === game.name && "bg-[#292929]"

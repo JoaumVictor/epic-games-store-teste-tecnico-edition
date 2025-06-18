@@ -6,13 +6,13 @@ function CheckoutHeader() {
   return (
     <header className="px-10 mb-8">
       <div className="tagsBox">
-        <a href="/" className="logoLink">
+        <div className="logoLink">
           <img
             src="https://logodownload.org/wp-content/uploads/2020/10/epic-games-logo.png"
             alt="epicLogo"
             className="logo"
           />
-        </a>
+        </div>
       </div>
       <div className="userBox">
         <AiOutlineUser className="icon" />

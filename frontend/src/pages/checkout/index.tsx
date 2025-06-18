@@ -37,7 +37,7 @@ export default function Checkout() {
             {cart.map(({ game }) => (
               <div className="flex items-center justify-end w-full gap-5">
                 <div
-                  className="flex items-start justify-end flex-col gap-3 h-[200px] bg-[#232323] w-full checkoutGameBanner rounded-[8px]"
+                  className="flex items-start justify-end flex-col gap-3 p-5 h-[200px] bg-[#232323] w-full checkoutGameBanner rounded-[8px]"
                   style={{
                     backgroundImage: `url(${game.cover})`,
                     backgroundRepeat: "no-repeat",

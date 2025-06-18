@@ -6,6 +6,7 @@ import React, {
   ReactNode,
   Dispatch,
   useMemo,
+  useEffect, // Adiciona useEffect
 } from "react";
 
 export interface CartItem {
@@ -14,7 +15,8 @@ export interface CartItem {
 
 type CartAction =
   | { type: "ADD_TO_CART"; payload: Game }
-  | { type: "REMOVE_FROM_CART"; payload: string };
+  | { type: "REMOVE_FROM_CART"; payload: string }
+  | { type: "CLEAR_CART" };
 
 type CartState = CartItem[];
 
@@ -22,6 +24,7 @@ interface CartContextValue {
   cart: CartState;
   dispatch: Dispatch<CartAction>;
   totalPriceInCart: number;
+  totalPriceWithDiscount: number;
 }
 
 const CartContext = createContext<CartContextValue | undefined>(undefined);
@@ -42,17 +45,48 @@ const cartReducer = (state: CartState, action: CartAction): CartState => {
     case "REMOVE_FROM_CART":
       return state.filter((item) => item.game._id !== action.payload);
 
+    case "CLEAR_CART":
+      return [];
+
     default:
       return state;
+  }
+};
+
+// Função para inicializar o estado do carrinho lendo do localStorage
+const initializeCart = (): CartState => {
+  try {
+    const storedCart = localStorage.getItem("epicGamesCart");
+    return storedCart ? JSON.parse(storedCart) : [];
+  } catch (error) {
+    console.error("Failed to parse cart from localStorage:", error);
+    return []; // Retorna um carrinho vazio em caso de erro na leitura/parse
   }
 };
 
 export const CartProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
-  const [cart, dispatch] = useReducer(cartReducer, []);
+  // Inicializa o useReducer com a função initializeCart
+  const [cart, dispatch] = useReducer(cartReducer, [], initializeCart);
+
+  // Efeito para salvar o carrinho no localStorage sempre que ele mudar
+  useEffect(() => {
+    try {
+      localStorage.setItem("epicGamesCart", JSON.stringify(cart));
+    } catch (error) {
+      console.error("Failed to save cart to localStorage:", error);
+    }
+  }, [cart]); // O efeito é re-executado sempre que 'cart' muda
 
   const totalPrice = useMemo(() => {
+    return cart.reduce((acc, item) => {
+      const price = item.game.price || 0;
+      return acc + price;
+    }, 0);
+  }, [cart]);
+
+  const totalPriceWithDiscount = useMemo(() => {
     return cart.reduce((acc, item) => {
       const price = item.game.price || 0;
       const discount = item.game.discount || 0;
@@ -65,8 +99,9 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({
       cart,
       dispatch,
       totalPriceInCart: totalPrice,
+      totalPriceWithDiscount: totalPriceWithDiscount,
     }),
-    [cart, dispatch, totalPrice]
+    [cart, dispatch, totalPrice, totalPriceWithDiscount]
   );
 
   return (
