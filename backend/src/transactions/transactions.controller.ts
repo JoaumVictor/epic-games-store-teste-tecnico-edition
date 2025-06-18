@@ -5,20 +5,13 @@ import {
   Get,
   HttpStatus,
   HttpCode,
-  Query,
   Param,
   Delete,
 } from '@nestjs/common';
 import { TransactionsService } from './transactions.service';
 import { CreateTransactionDto } from './dtos/create-transaction.dto';
 import { Transaction } from './schemas/transaction.schema';
-import {
-  ApiTags,
-  ApiOperation,
-  ApiResponse,
-  ApiQuery,
-  ApiParam,
-} from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
 
 @ApiTags('transactions')
 @Controller('transactions')
@@ -44,21 +37,34 @@ export class TransactionsController {
 
   @Get()
   @ApiOperation({
-    summary: 'Lista todas as transações, podendo ser filtradas por usuário.',
-  })
-  @ApiQuery({
-    name: 'userId',
-    required: false,
-    description: 'ID do usuário para filtrar as transações.',
-    example: '60c72b2f9b1d8c001c8e4d22',
+    summary: 'Lista todas as transações (sem filtro de usuário no path).',
   })
   @ApiResponse({
     status: 200,
     description: 'Transações encontradas com sucesso.',
     type: [Transaction],
   })
-  async findAll(@Query('userId') userId?: string): Promise<Transaction[]> {
-    return this.transactionsService.findAll(userId);
+  async findAll(): Promise<Transaction[]> {
+    return this.transactionsService.findAll();
+  }
+
+  @Get('user/:userId')
+  @ApiOperation({
+    summary: 'Lista todas as transações de um usuário específico.',
+  })
+  @ApiParam({
+    name: 'userId',
+    description: 'ID do usuário para filtrar transações.',
+    example: '60c72b2f9b1d8c001c8e4d22',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Transações do usuário encontradas com sucesso.',
+    type: [Transaction],
+  })
+  @ApiResponse({ status: 400, description: 'ID de usuário inválido.' })
+  async findByUserId(@Param('userId') userId: string): Promise<Transaction[]> {
+    return this.transactionsService.findByUserId(userId);
   }
 
   @Get(':id')

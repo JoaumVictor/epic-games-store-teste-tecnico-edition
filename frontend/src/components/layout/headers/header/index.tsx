@@ -2,13 +2,14 @@ import "./style.scss";
 import { AiOutlineGlobal, AiOutlineUser } from "react-icons/ai";
 import { PiShoppingCartSimpleFill } from "react-icons/pi";
 import { useState } from "react";
-import tags from "@/mocks/tags";
 import { useCart } from "@/context/cart";
 import Cart from "@/components/pages/home/cart";
 
 function Header() {
   const [openCart, setOpenCart] = useState(false);
   const { cart } = useCart();
+
+  const tags = ["Store", "Perguntas Frequentes", "Ajuda", "Unreal Engine"];
 
   return (
     <header className="px-10 mb-8">
