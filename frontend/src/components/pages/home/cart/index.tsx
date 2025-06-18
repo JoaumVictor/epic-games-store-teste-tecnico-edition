@@ -42,7 +42,7 @@ export default function Cart({ setOpenCart }: CartProps) {
         animate="visible"
         exit="exit"
         transition={{ type: "spring", stiffness: 100, damping: 20 }}
-        className="fixed right-0 top-0 bg-[#242424] w-[400px] h-[100vh] flex items-center justify-between flex-col p-10"
+        className="fixed right-0 top-0 bg-[#242424] w-[400px] h-[100vh] flex items-center justify-between flex-col p-10 z-50"
       >
         <div className="w-full">
           <div className="flex items-center justify-between w-full">

@@ -1,5 +1,5 @@
 import React, { createContext, useState, useEffect, useMemo } from "react";
-import { Game } from "@/types/games";
+import { Game } from "@/api/dto/games";
 import api from "@/api";
 
 interface GamesContextValue {

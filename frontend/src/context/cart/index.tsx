@@ -1,4 +1,4 @@
-import { Game } from "@/types/games";
+import { Game } from "@/api/dto/games";
 import React, {
   createContext,
   useContext,

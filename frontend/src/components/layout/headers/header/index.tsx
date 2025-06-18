@@ -37,7 +37,9 @@ function Header() {
           className="icon"
         />
         <AiOutlineGlobal className="icon" />
-        <AiOutlineUser className="icon" />
+        <a href="/profile">
+          <AiOutlineUser className="icon" />
+        </a>
         <div className="download">
           <p>Baixar Epic Games </p>
         </div>

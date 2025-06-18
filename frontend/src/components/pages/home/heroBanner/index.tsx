@@ -6,7 +6,7 @@ import { classNames, formatterCurrency } from "@/utils/shared";
 import Button from "@/components/ui/button";
 import { useCart } from "@/context/cart";
 import useGames from "@/hooks/useGames";
-import { Game } from "@/types/games";
+import { Game } from "@/api/dto/games";
 import Container from "../../../ui/container";
 import HeroBannerSkeleton from "@/components/shared/skeletons/heroBanner";
 import useUser from "@/hooks/useUser";
