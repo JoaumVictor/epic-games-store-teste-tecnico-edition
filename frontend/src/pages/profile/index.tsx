@@ -5,6 +5,23 @@ import useUser from "@/hooks/useUser";
 import { formatterCurrency } from "@/utils/shared";
 import Header from "@/components/layout/headers/header";
 
+interface Game {
+  _id: string;
+  name: string;
+  banner: string;
+  cover: string;
+  price: number;
+}
+
+interface Transaction {
+  _id: string;
+  game: Game;
+  user: string;
+  amount: number;
+  discountApplied?: number;
+  transactionDate: string;
+}
+
 interface Achievement {
   id: string;
   name: string;
@@ -89,8 +106,10 @@ export default function Profile() {
     return (
       <main className="min-h-screen flex flex-col bg-[#121212] text-white">
         <Header />
-        <div className="flex items-center justify-center flex-grow">
-          <p className="text-lg">Carregando perfil e transações...</p>
+        <div className="flex items-center justify-center flex-grow p-4">
+          <p className="text-base text-center sm:text-lg">
+            Carregando perfil e transações...
+          </p>
         </div>
       </main>
     );
@@ -100,8 +119,8 @@ export default function Profile() {
     return (
       <main className="min-h-screen flex flex-col bg-[#121212] text-white">
         <Header />
-        <div className="flex items-center justify-center flex-grow">
-          <p className="text-lg text-red-500">
+        <div className="flex items-center justify-center flex-grow p-4">
+          <p className="text-base text-center text-red-500 sm:text-lg">
             Erro ao carregar usuário, verifique se seu ID MOCKADO no contexto do
             user está CORRETO.
           </p>
@@ -114,8 +133,8 @@ export default function Profile() {
     return (
       <main className="min-h-screen flex flex-col bg-[#121212] text-white">
         <Header />
-        <div className="flex items-center justify-center flex-grow">
-          <p className="text-lg text-red-500">
+        <div className="flex items-center justify-center flex-grow p-4">
+          <p className="text-base text-center text-red-500 sm:text-lg">
             Erro ao carregar transações: {transactionsError}
           </p>
         </div>
@@ -124,67 +143,70 @@ export default function Profile() {
   }
 
   return (
-    <main className="bg-[#121212] min-h-[100vh] text-white">
+    <main className="bg-[#121212] min-h-screen text-white">
       <Header />
-      <Container className="px-10 py-10">
-        <div className="flex items-start justify-center w-full gap-10">
-          <div className="relative flex flex-col items-start justify-start w-7/12 gap-3 pt-10">
-            <h2 className="mb-6 text-2xl text-white">Meu Perfil</h2>
+      <Container className="px-4 py-6 sm:px-6 md:px-8 lg:px-10 lg:py-10">
+        <div className="flex flex-col items-start justify-center w-full gap-8 lg:flex-row lg:gap-10">
+          <div className="relative flex flex-col items-start justify-start w-full gap-4 pt-4 lg:w-7/12 xl:w-2/3">
+            <h2 className="mb-4 text-xl font-bold sm:text-2xl">Meu Perfil</h2>
 
-            <img
-              src="https://i.pinimg.com/736x/c1/6b/20/c16b20763f42593e20c90f4b024a5bbf.jpg"
-              alt="joel the last of us"
-              className="absolute object-cover w-40 h-40 mb-6 rounded-full shadow-md top-10 right-10"
-            />
-
-            <div className="flex flex-col items-start justify-start w-full gap-2 text-lg text-white">
-              <p>
-                <strong>Nome de Usuário:</strong> {user.username}
-              </p>
-              <p>
-                <strong>Email:</strong> {user.email}
-              </p>
-              <p>
-                <strong>ID de Usuário:</strong> {user._id}{" "}
-              </p>
-              <p>
-                <strong>Papel:</strong> {user.role || "Não definido"}
-              </p>
-              <p>
-                <strong>Membro desde:</strong>{" "}
-                {getFormattedDate(user.createdAt)}
-              </p>
+            <div className="relative flex flex-col items-center w-full gap-4 sm:flex-row sm:items-start sm:gap-6">
+              <img
+                src="https://i.pinimg.com/736x/c1/6b/20/c16b20763f42593e20c90f4b024a5bbf.jpg"
+                alt="Avatar do usuário"
+                className="flex-shrink-0 object-cover w-24 h-24 rounded-full shadow-md sm:w-32 sm:h-32"
+              />
+              <div className="flex flex-col items-start justify-start w-full gap-1 text-base text-white sm:text-lg">
+                <p>
+                  <strong>Nome de Usuário:</strong> {user.username}
+                </p>
+                <p>
+                  <strong>Email:</strong> {user.email}
+                </p>
+                <p>
+                  <strong>ID de Usuário:</strong> {user._id}
+                </p>
+                <p>
+                  <strong>Papel:</strong> {user.role || "Não definido"}
+                </p>
+                <p>
+                  <strong>Membro desde:</strong>{" "}
+                  {getFormattedDate(user.createdAt)}
+                </p>
+              </div>
             </div>
 
-            <div className="bg-[#5069cf] w-full h-[4px] my-6" />
+            <div className="bg-[#5069cf] w-full h-[2px] sm:h-[3px] my-4 rounded-full" />
 
-            <h2 className="mt-6 mb-6 text-2xl text-white">Minhas Transações</h2>
+            <h2 className="mt-4 mb-4 text-xl font-bold sm:text-2xl">
+              Minhas Transações
+            </h2>
 
             {userTransactions.length === 0 ? (
-              <p className="text-white">
+              <p className="text-base text-gray-300 sm:text-lg">
                 Nenhuma transação encontrada para este usuário.
               </p>
             ) : (
-              <div className="flex flex-col items-start justify-start w-full gap-5">
+              <div className="flex flex-col items-start justify-start w-full gap-4 max-h-[1000px] overflow-y-hidden pr-2 no-scrollbar">
                 {userTransactions.map((transaction) => (
                   <div
                     key={transaction._id}
-                    className="w-full p-6 rounded-lg shadow-sm bg-[#2d2d2d] text-white"
+                    className="w-full p-4 sm:p-6 rounded-lg shadow-sm bg-[#2d2d2d] text-white border border-[#2d2d2d] hover:border-[#5069cf] transition-all duration-200"
                   >
-                    <div className="flex items-center justify-between mb-2">
-                      <p className="font-semibold text-gray-200">
+                    <div className="flex flex-col items-start justify-between mb-2 sm:flex-row sm:items-center">
+                      <p className="mb-1 text-base font-semibold text-gray-200 sm:text-lg sm:mb-0">
                         Jogo: {transaction.game?.name || "N/A"}
                       </p>
-                      <span className="font-bold text-green-400">
+                      <span className="text-base font-bold text-green-400 sm:text-lg">
                         {formatterCurrency(transaction.amount)}
                       </span>
                     </div>
-                    <p className="text-sm text-gray-400">
+                    <p className="text-xs text-gray-400 sm:text-sm">
                       Data: {getFormattedDate(transaction.transactionDate)}
                     </p>
                     {transaction?.discountApplied &&
                       transaction?.discountApplied > 0 && (
-                        <p className="text-sm text-gray-400">
+                        <p className="mt-1 text-xs text-gray-400 sm:text-sm">
                           Desconto Aplicado: {transaction.discountApplied}%
                         </p>
                       )}
@@ -197,16 +219,15 @@ export default function Profile() {
             )}
           </div>
 
-          <div className="flex relative bg-[#1c1c1c] flex-col min-h-[80vh] items-end justify-start w-3/12 gap-3 p-6 z-0">
-            <h2 className="w-full text-xl text-white text-end">
+          <div className="flex flex-col min-h-[400px] lg:min-h-[80vh] items-start justify-start w-full lg:w-5/12 xl:w-1/3 gap-4 p-4 sm:p-6 bg-[#1c1c1c] rounded-lg shadow-md">
+            <h2 className="w-full pb-6 text-xl font-bold text-center border-b border-gray-700 sm:text-2xl lg:text-right">
               Minhas Conquistas
             </h2>
-            <div className="bg-[#5069cf] w-full h-[2px] my-4" />
-            <div className="flex flex-col w-full gap-4 pr-2 overflow-y-auto">
+            <div className="flex flex-col w-full gap-4 pr-2 overflow-y-auto no-scrollbar">
               {achievements.map((achievement) => (
                 <div
                   key={achievement.id}
-                  className="flex items-start gap-3 bg-[#2d2d2d] p-3 rounded-lg shadow-sm"
+                  className="flex items-start gap-3 bg-[#2d2d2d] p-3 rounded-lg shadow-sm border border-[#2d2d2d] hover:border-[#5069cf] transition-all duration-200"
                 >
                   <img
                     src={achievement.imageUrl}
@@ -214,10 +235,10 @@ export default function Profile() {
                     className="flex-shrink-0 object-cover w-16 h-16 rounded-full shadow-md"
                   />
                   <div className="flex flex-col">
-                    <p className="text-lg font-semibold text-white">
+                    <p className="text-base font-semibold text-white sm:text-lg">
                       {achievement.name}
                     </p>
-                    <p className="text-sm text-gray-400">
+                    <p className="text-xs text-gray-400 sm:text-sm">
                       {achievement.description}
                     </p>
                   </div>
