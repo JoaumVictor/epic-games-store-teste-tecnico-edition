@@ -3,7 +3,7 @@ import { Dialog, Transition } from "@headlessui/react";
 import Button from "@/components/ui/button";
 import { formatterCurrency, isLuhnValid } from "@/utils/shared";
 import { IoCloseOutline } from "react-icons/io5";
-import Input from "@/components/ui/input";
+import Input from "@/components/ui/customInput"; // Ajustado para customInput
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { creditCardsProps } from "@/components/pages/payment/creditCardDropdown";
@@ -12,6 +12,33 @@ import { useCart } from "@/context/cart";
 import useUser from "@/hooks/useUser";
 import api from "@/api";
 import { useNavigate } from "react-router-dom";
+
+// Tipagem para o Game, conforme fornecido
+export interface Game {
+  _id: string;
+  name: string;
+  description: string;
+  cover: string;
+  banner: string;
+  price: number;
+  discount?: number;
+  genre?: string[];
+  releaseDate?: string;
+  developer?: string;
+  publisher?: string;
+  platforms?: string[];
+  rating?: number;
+  isFeatured?: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+// Estendendo a tipagem do item do carrinho para incluir a interface Game
+interface CartItem {
+  game: Game; // Assumindo que cada item do carrinho tem uma propriedade 'game' do tipo Game
+  quantity: number; // Exemplo: se houver quantidade
+  _id: string; // ID do item do carrinho (não do jogo)
+}
 
 interface ModalProps {
   isOpen: boolean;
@@ -42,11 +69,16 @@ const PaymentModal: React.FC<ModalProps> = ({
   selectedCard,
   value,
 }) => {
+  // Tipagem do cart para usar CartItem
   const { cart, dispatch } = useCart();
-  const { user } = useUser();
+  const { user, fetchUser } = useUser();
   const navigation = useNavigate();
 
   const [paymentProcessing, setPaymentProcessing] = useState(false);
+  // Novo estado para a mensagem de sucesso ou erro do pagamento
+  const [paymentSuccessMessage, setPaymentSuccessMessage] = useState<
+    string | null
+  >(null);
 
   const validationSchema = Yup.object({
     cardNumber: Yup.string()
@@ -59,7 +91,7 @@ const PaymentModal: React.FC<ModalProps> = ({
       ),
     expirationDate: Yup.string()
       .required("Data de validade é obrigatória")
-      .matches(/^(0[1-9]|1[0-2])\d{2}$/, "Data inválida. Formato aceito: MM/YY")
+      .matches(/^(0[1-9]|1[0-2])\d{2}$/, "Data inválida. Formato aceito: MM/AA")
       .test("isValidDate", "Data inválida ou expirada", (value) => {
         const current = new Date();
         const month = parseInt(value.slice(0, 2), 10);
@@ -93,36 +125,107 @@ const PaymentModal: React.FC<ModalProps> = ({
     onSubmit: (values) => handleNewCreditCardPayment(values),
   });
 
+  /**
+   * Função para criar transações no backend para cada item do carrinho.
+   * Ela itera sobre o carrinho, monta o payload para cada transação
+   * e envia requisições POST em paralelo usando Promise.all.
+   */
+  const createTransactions = async () => {
+    // Verifica se o usuário está logado e se o carrinho não está vazio
+    if (!user || !user._id || cart.length === 0) {
+      console.error(
+        "Usuário não logado ou carrinho vazio. Não é possível criar transações."
+      );
+      return;
+    }
+
+    setPaymentProcessing(true); // Ativa o estado de processamento
+    setPaymentSuccessMessage(null); // Limpa qualquer mensagem de sucesso/erro anterior
+
+    try {
+      // Cria um array de promessas, onde cada promessa é uma requisição POST para uma transação
+      const transactionPromises = cart.map((item) => {
+        // O ID do jogo vem de item.game._id e o preço do item.game.price, conforme a tipagem Game
+        const gameId = item.game._id;
+        const amount = item.game.price; // O valor da transação é o preço do jogo
+
+        const payload = {
+          game: gameId,
+          user: user._id, // ID do usuário logado
+          amount: amount, // Valor da transação é o preço individual do jogo
+          discountApplied: 0, // Desconto sempre zero conforme especificado
+        };
+        console.log("Enviando payload da transação:", payload);
+        return api.post("/transactions", payload); // Envia a requisição POST
+      });
+
+      // Aguarda que todas as promessas de transação sejam resolvidas
+      await Promise.all(transactionPromises);
+
+      console.log("Todas as transações foram criadas com sucesso!");
+      // Define a mensagem de sucesso para exibir no modal
+      setPaymentSuccessMessage(
+        `🎉 Pagamento aprovado! Total: ${formatterCurrency(value)}`
+      );
+
+      dispatch({ type: "CLEAR_CART" }); // Limpa o carrinho após o sucesso
+      await fetchUser(); // Atualiza os dados do usuário
+
+      // Adiciona um pequeno delay antes de fechar o modal e redirecionar
+      // para que a mensagem de sucesso seja visível
+      setTimeout(() => {
+        onClose(); // Fecha o modal
+        formik.resetForm(); // Reseta o formulário
+        setPaymentSuccessMessage(null); // Limpa a mensagem após fechar o modal
+        navigation("/profile"); // Redireciona para o perfil
+      }, 2000);
+    } catch (error) {
+      console.error("Erro ao criar transações:", error);
+      // Define a mensagem de erro para exibir no modal
+      setPaymentSuccessMessage(
+        "Ops! 😔 Erro ao processar o pagamento. Tente novamente."
+      );
+      setPaymentProcessing(false); // Desativa o estado de processamento em caso de erro
+    }
+  };
+
+  /**
+   * Handler para pagamento com um novo cartão de crédito.
+   */
   const handleNewCreditCardPayment = async (
     values: handleNewCreditCardPaymentProps
   ) => {
-    if (!user || !user._id || cart.length === 0) return;
-
-    setPaymentProcessing(true);
-
-    // Simula processamento de pagamento com novo cartão
-    console.log("Pagamento via novo cartão", {
+    console.log("Iniciando pagamento via novo cartão...", {
       type: "creditCard",
       value: formatterCurrency(value),
       products: cart,
       newCreditCard: values,
     });
 
-    await new Promise((r) => setTimeout(r, 2000)); // delay simulado
+    // Simula um delay de processamento antes de chamar a API
+    await new Promise((r) => setTimeout(r, 1000));
 
-    setPaymentProcessing(false);
-
-    // Simula mensagem e redirecionamento
-    alert(`Pagamento aprovado! Total: ${formatterCurrency(value)}`);
-    dispatch({ type: "CLEAR_CART" });
-
-    setTimeout(() => {
-      onClose();
-      formik.resetForm();
-      navigation("/profile");
-    }, 500);
+    await createTransactions(); // Chama a função para criar as transações
   };
 
+  /**
+   * Handler para pagamento com um cartão de crédito salvo.
+   */
+  const handleSavedCreditCardPayment = async () => {
+    console.log("Iniciando pagamento via cartão salvo...", {
+      type: "userCreditCard",
+      value: formatterCurrency(value),
+      products: cart,
+      selectedCard: selectedCard,
+    });
+
+    // Simula um delay de processamento antes de chamar a API
+    await new Promise((r) => setTimeout(r, 1000));
+
+    await createTransactions(); // Chama a função para criar as transações
+  };
+
+  // Conteúdo dinâmico do modal baseado no método de pagamento
   const modalContent = {
     userCreditCard: (
       <div className="flex flex-col gap-3 px-4 py-3 sm:px-6">
@@ -138,6 +241,19 @@ const PaymentModal: React.FC<ModalProps> = ({
           Ao prosseguir, você confirma que é adulto e concorda com nossos termos
           de serviço.
         </p>
+        {/* Exibe a mensagem de sucesso ou erro */}
+        {paymentSuccessMessage && (
+          <div
+            className={`mt-4 p-3 rounded-md text-center 
+                ${
+                  paymentSuccessMessage.includes("aprovado")
+                    ? "bg-green-100 text-green-700"
+                    : "bg-red-100 text-red-700"
+                }`}
+          >
+            {paymentSuccessMessage}
+          </div>
+        )}
       </div>
     ),
     creditCard: (
@@ -146,19 +262,82 @@ const PaymentModal: React.FC<ModalProps> = ({
         className="flex flex-col gap-3 px-4 py-3 sm:px-6"
       >
         <p className="mb-3 text-xl text-black">Pagamento com novo cartão</p>
-        {/* <p>Inputs aqui</p> */}
+
+        {/* Inputs para o novo cartão de crédito */}
+        <Input
+          type="text"
+          label="Número do Cartão"
+          name="cardNumber"
+          placeholder="XXXX XXXX XXXX XXXX"
+          value={formik.values.cardNumber}
+          onChange={formik.handleChange}
+          onBlur={formik.handleBlur}
+          error={formik.touched.cardNumber && formik.errors.cardNumber}
+          maxLength={19} // Incluindo espaços para formatação (ex: 4 em 4)
+        />
+        <div className="flex gap-4">
+          <Input
+            type="text"
+            label="Validade (MM/AA)"
+            name="expirationDate"
+            placeholder="MM/AA"
+            value={formik.values.expirationDate}
+            onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
+            error={
+              formik.touched.expirationDate && formik.errors.expirationDate
+            }
+            maxLength={5} // MM/AA
+          />
+          <Input
+            type="text"
+            label="CVV"
+            name="cvv"
+            placeholder="CVV"
+            value={formik.values.cvv}
+            onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
+            error={formik.touched.cvv && formik.errors.cvv}
+            maxLength={4} // CVV pode ser 3 ou 4 dígitos
+          />
+        </div>
+        <Input
+          type="text"
+          label="Nome do Titular"
+          name="cardholderName"
+          placeholder="Nome Completo"
+          value={formik.values.cardholderName}
+          onChange={formik.handleChange}
+          onBlur={formik.handleBlur}
+          error={formik.touched.cardholderName && formik.errors.cardholderName}
+          maxLength={35}
+        />
 
         <p className="text-[#7b7b7b] text-[14px] mt-4">
           Ao prosseguir, você confirma que é adulto e concorda com nossos termos
           de serviço.
         </p>
+        {/* Exibe a mensagem de sucesso ou erro */}
+        {paymentSuccessMessage && (
+          <div
+            className={`mt-4 p-3 rounded-md text-center 
+                ${
+                  paymentSuccessMessage.includes("aprovado")
+                    ? "bg-green-100 text-green-700"
+                    : "bg-red-100 text-red-700"
+                }`}
+          >
+            {paymentSuccessMessage}
+          </div>
+        )}
       </form>
     ),
-    pix: <></>,
-    boleto: <></>,
-    paypal: <></>,
+    pix: <></>, // Conteúdo para Pix (vazio por enquanto)
+    boleto: <></>, // Conteúdo para Boleto (vazio por enquanto)
+    paypal: <></>, // Conteúdo para PayPal (vazio por enquanto)
   };
 
+  // Conteúdo dinâmico do botão de pagamento
   const buttonContent = {
     userCreditCard: (
       <Button
@@ -168,7 +347,7 @@ const PaymentModal: React.FC<ModalProps> = ({
             : `Pagar ${formatterCurrency(value)}`
         }
         style="finally"
-        onClick={() => handleNewCreditCardPayment(formik.values)}
+        onClick={handleSavedCreditCardPayment} // Chama o handler para cartão salvo
         disabled={paymentProcessing}
       />
     ),
@@ -180,13 +359,13 @@ const PaymentModal: React.FC<ModalProps> = ({
             : `Pagar ${formatterCurrency(value)}`
         }
         style="finally"
-        disabled={!formik.isValid || paymentProcessing}
-        onClick={formik.handleSubmit}
+        disabled={!formik.isValid || paymentProcessing} // Desabilita se o formulário não for válido ou estiver processando
+        onClick={formik.handleSubmit} // Dispara a submissão do formulário do Formik
       />
     ),
-    pix: <></>,
-    boleto: <></>,
-    paypal: <></>,
+    pix: <></>, // Botão para Pix (vazio por enquanto)
+    boleto: <></>, // Botão para Boleto (vazio por enquanto)
+    paypal: <></>, // Botão para PayPal (vazio por enquanto)
   };
 
   return (
@@ -194,7 +373,12 @@ const PaymentModal: React.FC<ModalProps> = ({
       <Dialog
         as="div"
         className="fixed inset-0 z-10 overflow-y-auto"
-        onClose={onClose}
+        onClose={() => {
+          // Função de fechamento do Dialog
+          onClose(); // Chama a prop onClose
+          formik.resetForm(); // Reseta o formulário
+          setPaymentSuccessMessage(null); // Limpa a mensagem de sucesso/erro ao fechar
+        }}
       >
         <div className="flex items-center justify-center h-screen px-4 pt-4 pb-20 text-center sm:p-0">
           <Transition.Child
@@ -223,14 +407,18 @@ const PaymentModal: React.FC<ModalProps> = ({
                 <IoCloseOutline
                   className="text-black text-[36px] cursor-pointer"
                   onClick={() => {
-                    onClose();
-                    formik.resetForm();
+                    // Botão de fechar dentro do modal
+                    onClose(); // Chama a prop onClose
+                    formik.resetForm(); // Reseta o formulário
+                    setPaymentSuccessMessage(null); // Limpa a mensagem de sucesso/erro ao fechar
                   }}
                 />
               </div>
-              {modalContent[paymentMethod]}
+              {modalContent[paymentMethod]}{" "}
+              {/* Renderiza o conteúdo do modal */}
               <div className="flex justify-end px-4 py-3 bg-gray-50 sm:px-6">
-                {buttonContent[paymentMethod]}
+                {buttonContent[paymentMethod]}{" "}
+                {/* Renderiza o botão de pagamento */}
               </div>
             </div>
           </Transition.Child>

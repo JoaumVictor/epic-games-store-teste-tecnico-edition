@@ -198,7 +198,10 @@ export default function Payment() {
               }}
             >
               {cart.map(({ game }) => (
-                <div className="flex items-center justify-between w-full">
+                <div
+                  key={game._id}
+                  className="flex items-center justify-between w-full"
+                >
                   <img
                     src={game.banner}
                     alt={game.name}

@@ -69,7 +69,10 @@ export default function Cart({ setOpenCart }: CartProps) {
               </div>
             ) : (
               cart.map((item) => (
-                <div className="flex items-center justify-between w-full gap-4">
+                <div
+                  key={`${item.game._id}-in-cart`}
+                  className="flex items-center justify-between w-full gap-4"
+                >
                   <img
                     src={item.game.banner}
                     alt={item.game.name}

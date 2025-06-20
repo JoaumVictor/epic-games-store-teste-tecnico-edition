@@ -102,7 +102,8 @@ export default function Profile() {
         <Header />
         <div className="flex items-center justify-center flex-grow">
           <p className="text-lg text-red-500">
-            Erro ao carregar usuário: {userError || "Usuário não encontrado."}
+            Erro ao carregar usuário, verifique se seu ID MOCKADO no contexto do
+            user está CORRETO.
           </p>
         </div>
       </main>
