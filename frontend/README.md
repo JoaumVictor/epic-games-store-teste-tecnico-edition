@@ -1,46 +1,63 @@
-# Getting Started with Create React App
+# Frontend da Loja de Jogos (React com Craco e TypeScript)
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Este diretório contém o código-fonte da aplicação frontend construída com React, utilizando Craco para configuração personalizada e TypeScript para tipagem estática. O projeto é otimizado com Tailwind CSS para estilização rápida e responsiva.
 
-## Available Scripts
+## 🚀 Tecnologias Utilizadas
 
-In the project directory, you can run:
+- **React**: Biblioteca JavaScript para construção de interfaces de usuário.
+- **TypeScript**: Superconjunto tipado de JavaScript.
+- **Craco**: Ferramenta para configurar aplicativos Create React App sem ejetar.
+- **Tailwind CSS**: Framework CSS utility-first para estilização rápida.
+- **Axios**: Cliente HTTP baseado em Promises para o navegador e Node.js.
+- **Framer Motion**: Biblioteca para animações em React.
+- **Headless UI**: Componentes de UI sem estilo para maior flexibilidade.
+- **React Router DOM**: Biblioteca para roteamento declarativo no React.
+- **Yup**: Validação de schema para formulários.
+- **Formik**: Solução para gerenciamento de estados de formulários.
 
-### `npm start`
+## 📦 Como Começar
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+Siga estas instruções para configurar e executar o frontend em seu ambiente de desenvolvimento.
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+### Pré-requisitos
 
-### `npm test`
+Certifique-se de ter o Node.js e o npm (ou Yarn) instalados em sua máquina.
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+- Node.js (versão LTS recomendada)
+- npm (geralmente vem com o Node.js) ou Yarn
 
-### `npm run build`
+### Instalação
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+Navegue até o diretório do frontend:
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+```bash
+cd frontend
+```
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+Instale as dependências:
 
-### `npm run eject`
+```bash
+npm install
+# ou
+yarn install
+```
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+### Execução
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+Para iniciar o servidor de desenvolvimento do frontend:
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+```bash
+npm start
+# ou
+yarn start
+```
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+O aplicativo estará acessível em `http://localhost:3001` (ou na próxima porta disponível se a 3001 estiver em uso).
 
-## Learn More
+## ⚠ Considerações Importantes
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+Este frontend depende de um serviço de backend rodando (normalmente em `http://localhost:3000`). Certifique-se de que seu backend esteja ativo para que a aplicação funcione corretamente. Se você estiver usando o `docker-compose.yml` da raiz do projeto, ele cuidará da inicialização do backend.
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+As requisições da API são feitas através da instância do Axios configurada em `src/api/index.ts`. Se o seu backend estiver em um endereço diferente, você precisará ajustar a base URL lá.
+
+Sinta-se à vontade para explorar e contribuir com o desenvolvimento deste frontend!

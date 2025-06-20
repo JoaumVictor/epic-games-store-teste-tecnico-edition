@@ -1,44 +1,54 @@
-# docker-compose.yml
-version: "3.8" # Versão da sintaxe do Docker Compose
+version: "3.8"
 
 services:
-  # Serviço para o Banco de Dados MongoDB 🍃
   mongodb:
-    image: mongo:latest # Usamos a imagem oficial mais recente do MongoDB
-    container_name: mongodb_container # Um nome amigável para o seu container do MongoDB
+    image: mongo:latest
+    container_name: mongodb_container
     ports:
-      - "27018:27017" # Mapeia a porta 27017 do host para a porta 27017 do container (padrão do MongoDB)
+      - "27018:27017"
     volumes:
-      - mongo_data:/data/db # Persiste os dados do MongoDB em um volume chamado 'mongo_data'
-    restart: always # Garante que o container reinicie automaticamente se parar
+      - mongo_data:/data/db
+    restart: always
     networks:
-      - app_network # Conecta o MongoDB à rede da aplicação
+      - app_network
 
-  # Serviço para o Backend NestJS 🚀
   backend:
     build:
-      context: ./backend # O Docker vai procurar o Dockerfile na pasta 'backend'
-      dockerfile: Dockerfile # O nome do arquivo Dockerfile
-    container_name: nestjs_backend # Um nome amigável para o seu container do backend
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: nestjs_backend
     ports:
-      - "3000:3000" # Mapeia a porta 3000 do host para a porta 3000 do container (padrão do NestJS)
+      - "3000:3000"
     depends_on:
-      - mongodb # Garante que o MongoDB inicie antes do backend
+      - mongodb
     environment:
-      # Variáveis de ambiente para o NestJS se conectar ao MongoDB
-      MONGO_URI: mongodb://mongodb:27017/game_store # O 'mongodb' no host é o nome do serviço no docker-compose
-    volumes: # <--- NOVA SEÇÃO DE VOLUMES AQUI
-      - ./backend:/app # Mapeia a pasta 'backend' do seu PC para '/app' dentro do container
-      - /app/node_modules # Impede que o node_modules local sobrescreva o do container
-    restart: always # Garante que o container reinicie automaticamente se parar
+      MONGO_URI: mongodb://mongodb:27017/game_store
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    restart: always
     networks:
-      - app_network # Conecta o backend à rede da aplicação
+      - app_network
 
-# Definição de Volumes para persistência de dados 💾
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: react_frontend
+    ports:
+      - "3001:3001"
+    depends_on:
+      - backend
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    restart: always
+    networks:
+      - app_network
+
 volumes:
-  mongo_data: # Volume onde os dados do MongoDB serão armazenados, mesmo se o container for removido
+  mongo_data:
 
-# Definição de Redes para comunicação entre os serviços 🌐
 networks:
-  app_network: # Rede interna para que os containers possam se comunicar pelo nome do serviço
-    driver: bridge # Tipo de rede padrão
+  app_network:
+    driver: bridge
