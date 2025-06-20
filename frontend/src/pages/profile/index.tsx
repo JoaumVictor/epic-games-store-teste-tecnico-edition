@@ -204,12 +204,6 @@ export default function Profile() {
                     <p className="text-xs text-gray-400 sm:text-sm">
                       Data: {getFormattedDate(transaction.transactionDate)}
                     </p>
-                    {transaction?.discountApplied &&
-                      transaction?.discountApplied > 0 && (
-                        <p className="mt-1 text-xs text-gray-400 sm:text-sm">
-                          Desconto Aplicado: {transaction.discountApplied}%
-                        </p>
-                      )}
                     <p className="mt-2 text-xs text-gray-500">
                       Transação ID: {transaction._id}
                     </p>

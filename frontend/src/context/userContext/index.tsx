@@ -1,5 +1,6 @@
 import React, { createContext, useState, useEffect, useMemo } from "react";
 import axios from "axios";
+import api from "@/api";
 
 interface UserContextValue {
   user: User | null;
@@ -19,10 +20,17 @@ export const UserProvider: React.FC<React.PropsWithChildren<{}>> = ({
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
-  const ID_MOCKADO = "685571c1b31dca25fbe2f2cb";
-
   const fetchUser = async () => {
     try {
+      const getAllUsers = await api.get<User[]>(`http://localhost:3000/users`);
+      if (getAllUsers.data.length === 0) {
+        setError(
+          "Nenhum usuário encontrado no backend... aguarde o backend iniciar e tente novamente."
+        );
+        setLoading(false);
+        return;
+      }
+      const ID_MOCKADO = getAllUsers.data[0]._id;
       setLoading(true);
       setError(null);
       const response = await axios.get<User>(
