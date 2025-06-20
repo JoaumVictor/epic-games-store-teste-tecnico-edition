@@ -21,7 +21,7 @@ export interface creditCardsProps {
 
 interface CreditCardDropdownProps {
   creditCards: creditCardsProps[];
-  selectedCard: creditCardsProps;
+  selectedCard: creditCardsProps | undefined;
   onSelectCard: (selected: creditCardsProps) => void;
   selectedPaymentMethod:
     | "pix"
@@ -38,37 +38,44 @@ const CreditCardDropdown = ({
   creditCards,
   selectedCard,
   onSelectCard,
-  selectedPaymentMethod,
+  selectedPaymentMethod = "userCreditCard",
   setSelectedPaymentMethod,
 }: CreditCardDropdownProps) => {
   const { removeCreditCard } = useCreditCard();
 
-  const handleDelete = (creditCardId: string) => {
-    removeCreditCard(creditCardId);
+  const handleDelete = (e: React.MouseEvent, creditCardId?: string) => {
+    e.stopPropagation();
+    if (creditCardId) {
+      removeCreditCard(creditCardId);
+    }
   };
 
   return (
     <Listbox value={selectedCard} onChange={onSelectCard}>
       {({ open }) => (
         <>
-          <div className="relative">
-            <Listbox.Button className="relative flex items-center justify-between w-full px-3 py-2 text-left text-black border rounded-md focus:outline-none focus:border-blue-300">
+          <div className="relative w-full">
+            <Listbox.Button className="relative flex items-center justify-between w-full px-4 py-3 text-sm text-left text-gray-800 transition-all duration-200 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-blue-300 sm:text-base">
               {selectedPaymentMethod === "userCreditCard" ? (
-                <FaCheckCircle className="!text-[#63aafb] text-[24px]" />
+                <FaCheckCircle className="text-[#63aafb] text-lg sm:text-xl mr-2 flex-shrink-0" />
               ) : (
-                <FaRegCircle className="!text-black text-[24px]" />
+                <FaRegCircle className="flex-shrink-0 mr-2 text-lg text-gray-600 sm:text-xl" />
               )}
-              <FaRegCreditCard className="!text-black icon mx-2 text-[22px]" />
-              <div className="flex items-center justify-between w-full">
-                <p className="!text-black">
+              <FaRegCreditCard className="flex-shrink-0 mx-2 text-lg text-gray-800 sm:text-xl" />
+              <div className="flex flex-col items-start justify-between w-full overflow-hidden sm:flex-row sm:items-center">
+                <p className="mr-2 overflow-hidden font-medium text-gray-800 whitespace-nowrap text-ellipsis">
                   {selectedCard?.label || "Selecione um cartão"}
                 </p>
-                <p className="!text-black">{selectedCard?.number}</p>
+                <p className="overflow-hidden text-xs text-gray-600 sm:text-sm whitespace-nowrap text-ellipsis">
+                  {selectedCard?.number}
+                </p>
               </div>
-              <FaTrash
-                onClick={() => handleDelete(selectedCard?.id)}
-                className="!text-black ml-5 hover:!text-red-600 mr-2 text-[22px]"
-              />
+              {selectedCard && (
+                <FaTrash
+                  onClick={(e) => handleDelete(e, selectedCard.id)}
+                  className="flex-shrink-0 ml-3 text-lg text-gray-600 cursor-pointer sm:ml-5 hover:text-red-500 sm:text-xl"
+                />
+              )}
             </Listbox.Button>
 
             <Transition
@@ -83,11 +90,11 @@ const CreditCardDropdown = ({
             >
               <Listbox.Options
                 static
-                className="absolute z-10 w-full py-1 mt-1 overflow-auto bg-white border rounded-md shadow-lg max-h-60 focus:outline-none"
+                className="absolute z-10 w-full py-1 mt-1 overflow-auto text-sm bg-white border border-gray-300 rounded-md shadow-lg max-h-60 focus:outline-none sm:text-base"
               >
                 {creditCards?.map((card) => (
                   <Listbox.Option
-                    key={card?.id}
+                    key={card.id}
                     value={card}
                     className="cursor-pointer"
                   >
@@ -97,17 +104,21 @@ const CreditCardDropdown = ({
                           setSelectedPaymentMethod("userCreditCard")
                         }
                         className={`${
-                          active ? "text-black bg-blue-500" : "text-gray-900"
-                        } cursor-pointer select-none relative py-2 pl-10 pr-4 flex items-center justify-between w-full`}
+                          active ? "text-gray-900 bg-blue-100" : "text-gray-900"
+                        } cursor-pointer select-none relative py-2 pl-4 pr-2 sm:pl-6 sm:pr-4 flex items-center justify-between w-full`}
                       >
-                        <FaRegCreditCard className="!text-black icon mr-2 text-[22px]" />
-                        <div className="flex items-center justify-between w-full">
-                          <p className="!text-black">{card?.label}</p>
-                          <p className="!text-black">{card?.number}</p>
+                        <FaRegCreditCard className="flex-shrink-0 mr-2 text-lg text-gray-800 sm:text-xl" />
+                        <div className="flex flex-col items-start justify-between w-full overflow-hidden sm:flex-row sm:items-center">
+                          <p className="mr-2 overflow-hidden font-medium text-gray-800 whitespace-nowrap text-ellipsis">
+                            {card.label}
+                          </p>
+                          <p className="overflow-hidden text-xs text-gray-600 sm:text-sm whitespace-nowrap text-ellipsis">
+                            {card.number}
+                          </p>
                         </div>
                         <FaTrash
-                          onClick={() => handleDelete(card?.id)}
-                          className="!text-black ml-5 hover:!text-red-600 mr-2 text-[22px]"
+                          onClick={(e) => handleDelete(e, card.id)}
+                          className="flex-shrink-0 ml-3 text-lg text-gray-600 cursor-pointer sm:ml-5 hover:text-red-500 sm:text-xl"
                         />
                       </div>
                     )}
