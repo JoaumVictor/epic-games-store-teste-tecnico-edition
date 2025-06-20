@@ -1,19 +1,18 @@
-// backend/src/transactions/transactions.module.ts
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { TransactionsController } from './transactions.controller';
 import { TransactionsService } from './transactions.service';
 import { Transaction, TransactionSchema } from './schemas/transaction.schema';
-import { GamesModule } from '../games/games.module'; // Importa GamesModule para poder usar GamesService
-import { UsersModule } from '../users/users.module'; // Importa UsersModule para poder usar UsersService
+import { GamesModule } from '../games/games.module';
+import { UsersModule } from '../users/users.module';
 
 @Module({
   imports: [
     MongooseModule.forFeature([
       { name: Transaction.name, schema: TransactionSchema },
     ]),
-    GamesModule, // Importa para poder acessar o GameService se necessário
-    UsersModule, // Importa para poder acessar o UserService se necessário
+    GamesModule,
+    UsersModule,
   ],
   controllers: [TransactionsController],
   providers: [TransactionsService],

@@ -1,5 +1,4 @@
-// backend/src/database/seed/seed.ts
-import mongoose, { Model } from 'mongoose'; // Importa mongoose diretamente
+import mongoose, { Model } from 'mongoose';
 import { Game, GameSchema } from '../../games/schemas/game.schema';
 import { User, UserSchema } from '../../users/schemas/user.schema';
 import {
@@ -17,7 +16,6 @@ async function bootstrap() {
 
   console.log(`Conectado ao MongoDB em: ${mongoUri}`);
 
-  // Obtém os modelos (Models) do Mongoose a partir da conexão ativa
   const gameModel: Model<Game> = mongooseConnection.model(
     Game.name,
     GameSchema,
@@ -147,7 +145,7 @@ async function bootstrap() {
     {
       username: 'victor_dev',
       email: 'victor.dev@example.com',
-      password: 'hashedpassword1', // Em um app real, use bcrypt para hash
+      password: 'hashedpassword1',
       role: 'admin',
     },
     {
@@ -182,7 +180,7 @@ async function bootstrap() {
   console.log('Jogos inseridos:', insertedGames.length);
 
   console.log('Dados de exemplo inseridos com sucesso!');
-  await mongooseConnection.close(); // Fecha a conexão com o banco
+  await mongooseConnection.close();
   console.log('Conexão com MongoDB fechada.');
 }
 

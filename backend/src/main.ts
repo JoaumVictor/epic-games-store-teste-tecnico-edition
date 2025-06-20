@@ -39,18 +39,18 @@ async function bootstrap() {
 
   // --- Configuração do Swagger ---
   const config = new DocumentBuilder()
-    .setTitle('Epic Games Store - Teste Técnico Edition API') // Título da sua API
+    .setTitle('Epic Games Store - Teste Técnico Edition API')
     .setDescription(
       'Documentação da API do backend da Epic Games Store - Teste Técnico Edition',
-    ) // Descrição da API
-    .setVersion('1.0') // Versão da API
-    .addTag('games', 'Operações relacionadas a jogos') // Adiciona tags para organizar os endpoints
+    )
+    .setVersion('1.0')
+    .addTag('games', 'Operações relacionadas a jogos')
     .addTag('users', 'Operações relacionadas a usuários')
     .addTag('transactions', 'Operações relacionadas a transações de compra')
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api-docs', app, document); // 'api-docs' é a URL onde o Swagger UI estará disponível
+  SwaggerModule.setup('api-docs', app, document);
 
   const port = process.env.PORT || 3000;
   await app.listen(port);

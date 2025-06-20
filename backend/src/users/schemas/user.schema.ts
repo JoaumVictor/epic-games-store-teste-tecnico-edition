@@ -15,7 +15,7 @@ export class User extends Document {
   @Prop({ required: true, unique: true })
   email: string;
 
-  @ApiHideProperty() // Oculta a propriedade password do Swagger UI
+  @ApiHideProperty()
   @Prop({ required: true })
   password?: string;
 

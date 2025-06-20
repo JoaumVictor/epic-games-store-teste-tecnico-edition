@@ -54,7 +54,7 @@ export default function HeroBanner() {
   };
 
   const gameExistInCart = () => {
-    return cart.some((game) => game.game.name === gameShow?.name);
+    return gameShow && cart.some((item) => item.game.name === gameShow.name);
   };
 
   const gameExistInAccount = () => {
@@ -64,31 +64,34 @@ export default function HeroBanner() {
   return (
     <Container>
       {(loading || !gameShow) && <HeroBannerSkeleton />}
-      {loading === false && gameShow && (
+      {!loading && gameShow && (
         <>
-          <div className="flex items-center justify-start gap-5 my-5">
-            <div className="p-2 text-white flex bg-[#2d2d2d] rounded-[14px] items-center justify-center gap-2 text-[14px]">
+          <div className="flex flex-col items-center justify-start gap-3 my-5 sm:flex-row sm:gap-5">
+            <div className="p-2 text-white flex bg-[#2d2d2d] rounded-[14px] items-center justify-center gap-2 text-[14px] w-full sm:w-auto">
               <CiSearch className="text-white text-[16px] ml-1" />
               <input
                 type="text"
                 placeholder="Buscar na loja"
-                className="rounded-[12px] bg-transparent outline-none pl-1"
+                className="rounded-[12px] bg-transparent outline-none pl-1 w-full"
               />
             </div>
-            {tags.map((tag) => (
-              <button
-                key={tag}
-                className="text-gray-300 transition-all hover:text-white"
-              >
-                {tag}
-              </button>
-            ))}
+            <div className="flex flex-wrap justify-center gap-3 mt-3 sm:gap-5 sm:mt-0">
+              {tags.map((tag) => (
+                <button
+                  key={tag}
+                  className="text-sm text-gray-300 transition-all hover:text-white sm:text-base"
+                >
+                  {tag}
+                </button>
+              ))}
+            </div>
           </div>
-          <div className="flex items-center justify-between w-full gap-3">
-            <div className="w-4/5 overflow-hidden">
+
+          <div className="flex flex-col items-center justify-between w-full gap-6 lg:flex-row lg:items-start">
+            <div className="w-full overflow-hidden lg:w-4/5">
               <motion.div
                 variants={gameBannerVariants}
-                key={gameShow?.name}
+                key={gameShow?._id}
                 initial="hidden"
                 animate={exitAnimate ? "exit" : "visible"}
                 transition={{
@@ -96,16 +99,24 @@ export default function HeroBanner() {
                   ease: "easeInOut",
                   stiffness: 1000,
                 }}
-                className="min-h-[750px] rounded-[14px] flex items-start justify-end gap-4 flex-col p-10 shadow-inner bg-[#2d2d2d] text-white transition-all hover:shadow-2xl heroBanner"
+                className="
+                  min-h-[400px] md:min-h-[500px] lg:min-h-[750px] 
+                  rounded-[14px] flex items-start justify-end gap-2 sm:gap-4 flex-col 
+                  p-4 sm:p-6 md:p-10 shadow-inner bg-[#2d2d2d] text-white 
+                  transition-all hover:shadow-2xl heroBanner relative
+                "
                 style={{
                   backgroundImage: `url(${gameShow?.cover})`,
                   backgroundRepeat: "no-repeat",
                   backgroundSize: "cover",
+                  backgroundPosition: "center",
                 }}
               >
+                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-transparent rounded-[14px]"></div>
+
                 <motion.img
                   variants={GameTitleVariants}
-                  key={gameShow?.name}
+                  key={gameShow?._id}
                   initial="hidden"
                   animate="visible"
                   transition={{
@@ -115,15 +126,15 @@ export default function HeroBanner() {
                   }}
                   src={gameShow?.banner}
                   alt={gameShow?.name}
-                  className="w-[280px] z-10"
+                  className="w-[180px] sm:w-[220px] md:w-[280px] z-10"
                 />
-                <p className="max-w-[350px] text-[16px] z-10">
+                <p className="max-w-full sm:max-w-[80%] md:max-w-[350px] text-lg sm:text-xl md:text-2xl font-bold z-10">
                   {gameShow?.name}
                 </p>
-                <p className="max-w-[350px] text-[20px] z-10">
+                <p className="max-w-full sm:max-w-[80%] md:max-w-[350px] text-sm sm:text-base md:text-lg z-10">
                   {gameShow?.description}
                 </p>
-                <p className=" text-white rounded-[8px] z-10">
+                <p className="text-white rounded-[8px] text-base sm:text-lg z-10">
                   A partir de {formatterCurrency(gameShow?.price ?? 100)}
                 </p>
                 {!gameExistInAccount() ? (
@@ -135,35 +146,51 @@ export default function HeroBanner() {
                         ? "Já adicionado"
                         : "Adicionar ao carrinho"
                     }
-                    className="z-10 transition-all"
+                    className="z-10 px-4 py-2 text-sm transition-all sm:text-base"
                     style="tertiary"
                   />
                 ) : (
                   <Button
                     onClick={() => navigation("/profile")}
                     label={"Ver na biblioteca"}
-                    className="z-10 transition-all"
+                    className="z-10 px-4 py-2 text-sm transition-all sm:text-base"
                     style="tertiary"
                   />
                 )}
               </motion.div>
             </div>
-            <div className="w-1/5 flex items-center justify-between flex-col min-h-[750px]">
+
+            <div
+              className="
+              w-full lg:w-1/5 flex 
+              flex-row lg:flex-col 
+              min-h-[200px] lg:min-h-[750px] 
+              overflow-x-auto lg:overflow-x-visible 
+              pb-4 lg:pb-0 
+              gap-3 lg:gap-0 
+              justify-start lg:justify-between 
+              items-start lg:items-center
+              no-scrollbar
+              p-2 lg:p-0
+            "
+            >
               {games.slice(0, 6).map((game) => (
                 <div
                   onClick={() => handleGameClick(game)}
                   key={game._id}
                   className={classNames(
-                    "w-full cursor-pointer px-8 py-4 rounded-[8px] min-h-[100px] flex items-center justify-between flex-row gap-2 hover:bg-[#292929] transition-all",
+                    "w-[120px] sm:w-[150px] lg:w-full flex-shrink-0 lg:flex-shrink p-2 sm:px-4 sm:py-2 lg:px-8 lg:py-4 rounded-[8px] min-h-[80px] lg:min-h-[100px] flex items-center justify-between flex-row gap-2 hover:bg-[#292929] transition-all cursor-pointer",
                     gameShow?.name === game.name && "bg-[#292929]"
                   )}
                 >
                   <img
                     src={game.banner}
                     alt={game.name}
-                    className="w-1/4 rounded-[8px]"
+                    className="w-1/3 lg:w-1/4 rounded-[4px] lg:rounded-[8px] object-cover"
                   />
-                  <p className="w-2/3 text-center text-white">{game.name}</p>
+                  <p className="w-2/3 text-xs text-center text-white sm:text-sm lg:text-base">
+                    {game.name}
+                  </p>
                 </div>
               ))}
             </div>

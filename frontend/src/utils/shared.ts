@@ -9,7 +9,6 @@ export function formatterCurrency(value: number) {
   }).format(value);
 }
 
-// validação de cartão de crédito usando o algoritmo de Luhn
 export function isLuhnValid(cardNumber: string) {
   let sum = 0;
   let shouldDouble = false;

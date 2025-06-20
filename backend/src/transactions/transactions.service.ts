@@ -176,7 +176,6 @@ export class TransactionsService {
         .populate('user')
         .exec();
       if (!transactions) {
-        // Se a query retornar array vazio, não é um 404, apenas não há transações
         this.logger.warn({
           message: `Nenhuma transação encontrada para o usuário ${userId}.`,
           userId,

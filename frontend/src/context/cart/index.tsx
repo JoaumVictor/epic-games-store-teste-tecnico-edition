@@ -6,7 +6,7 @@ import React, {
   ReactNode,
   Dispatch,
   useMemo,
-  useEffect, // Adiciona useEffect
+  useEffect,
 } from "react";
 
 export interface CartItem {
@@ -53,31 +53,28 @@ const cartReducer = (state: CartState, action: CartAction): CartState => {
   }
 };
 
-// Função para inicializar o estado do carrinho lendo do localStorage
 const initializeCart = (): CartState => {
   try {
     const storedCart = localStorage.getItem("epicGamesCart");
     return storedCart ? JSON.parse(storedCart) : [];
   } catch (error) {
     console.error("Failed to parse cart from localStorage:", error);
-    return []; // Retorna um carrinho vazio em caso de erro na leitura/parse
+    return [];
   }
 };
 
 export const CartProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
-  // Inicializa o useReducer com a função initializeCart
   const [cart, dispatch] = useReducer(cartReducer, [], initializeCart);
 
-  // Efeito para salvar o carrinho no localStorage sempre que ele mudar
   useEffect(() => {
     try {
       localStorage.setItem("epicGamesCart", JSON.stringify(cart));
     } catch (error) {
       console.error("Failed to save cart to localStorage:", error);
     }
-  }, [cart]); // O efeito é re-executado sempre que 'cart' muda
+  }, [cart]);
 
   const totalPrice = useMemo(() => {
     return cart.reduce((acc, item) => {

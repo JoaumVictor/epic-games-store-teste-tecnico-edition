@@ -1,4 +1,3 @@
-// backend/src/users/dtos/create-user.dto.ts
 import { IsString, IsEmail, MinLength } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 

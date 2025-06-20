@@ -1,4 +1,3 @@
-// backend/src/transactions/dtos/create-transaction.dto.ts
 import { IsMongoId, IsNumber, IsOptional, Min, Max } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 

@@ -41,12 +41,10 @@ export const CreditCardProvider: React.FC<{ children: ReactNode }> = ({
     },
   ]);
 
-  // aguardando um backend pra fazer a requisição
   const addCreditCard = (newCard: creditCardsProps) => {
     setCreditCards((prevCards) => [...prevCards, newCard]);
   };
 
-  // aguardando um backend pra fazer a requisição
   const removeCreditCard = (cardId: string) => {
     setCreditCards((prevCards) =>
       prevCards.filter((card) => card.id !== cardId)

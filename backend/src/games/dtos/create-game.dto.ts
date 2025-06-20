@@ -1,4 +1,3 @@
-// backend/src/games/dtos/create-game.dto.ts
 import {
   IsString,
   IsNumber,
