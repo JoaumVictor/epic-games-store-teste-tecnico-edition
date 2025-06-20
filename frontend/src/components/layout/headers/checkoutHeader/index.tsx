@@ -5,7 +5,7 @@ import "./style.scss";
 function CheckoutHeader() {
   return (
     <header className="px-10 mb-8">
-      <div className="tagsBox">
+      <a href="/" className="tagsBox">
         <div className="logoLink">
           <img
             src="https://logodownload.org/wp-content/uploads/2020/10/epic-games-logo.png"
@@ -13,9 +13,11 @@ function CheckoutHeader() {
             className="logo"
           />
         </div>
-      </div>
+      </a>
       <div className="userBox">
-        <AiOutlineUser className="icon" />
+        <a href="/profile">
+          <AiOutlineUser className="icon" />
+        </a>
         <div className="download">
           <p>Baixar Epic Games </p>
         </div>

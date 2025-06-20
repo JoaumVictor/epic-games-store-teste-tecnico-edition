@@ -15,7 +15,7 @@ import {
 } from "react-icons/fa";
 import { FaPix } from "react-icons/fa6";
 import { IoCloseOutline } from "react-icons/io5";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import PaymentModal from "@/components/shared/modals/paymentModal";
 import Container from "@/components/ui/container";
 
@@ -34,6 +34,7 @@ interface paymentMethodProps {
 
 export default function Payment() {
   const { cart, totalPriceInCart } = useCart();
+  const navigation = useNavigate();
 
   const [allCreditCards, setAllCreditCards] = useState<creditCardsProps[]>([]);
 
@@ -54,6 +55,12 @@ export default function Payment() {
       setSelectedPaymentMethod("creditCard");
     }
   }, [creditCards]);
+
+  useEffect(() => {
+    if (cart.length === 0) {
+      navigation("/profile");
+    }
+  }, []);
 
   const handleSelectCard = (selected: creditCardsProps) => {
     setSelectedCard(selected);

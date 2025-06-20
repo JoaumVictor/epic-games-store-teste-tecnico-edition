@@ -9,8 +9,8 @@ import Container from "@/components/ui/container";
 export default function Checkout() {
   const { cart, dispatch, totalPriceInCart } = useCart();
 
-  const handleDeleteGame = (gameName: string) => {
-    dispatch({ type: "REMOVE_FROM_CART", payload: gameName });
+  const handleDeleteGame = (id: string) => {
+    dispatch({ type: "REMOVE_FROM_CART", payload: id });
   };
   const navigate = useNavigate();
 
@@ -35,7 +35,10 @@ export default function Checkout() {
               </div>
             )}
             {cart.map(({ game }) => (
-              <div className="flex items-center justify-end w-full gap-5">
+              <div
+                key={game._id}
+                className="flex items-center justify-end w-full gap-5"
+              >
                 <div
                   className="flex items-start justify-end flex-col gap-3 p-5 h-[200px] bg-[#232323] w-full checkoutGameBanner rounded-[8px]"
                   style={{
@@ -55,7 +58,7 @@ export default function Checkout() {
                 <div>
                   <p className="my-5 cursor-pointer">Detalhes</p>
                   <p
-                    onClick={() => handleDeleteGame(game.name)}
+                    onClick={() => handleDeleteGame(game._id)}
                     className="my-5 text-red-500 cursor-pointer"
                   >
                     Remover

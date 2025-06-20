@@ -10,11 +10,13 @@ import { Game } from "@/api/dto/games";
 import Container from "../../../ui/container";
 import HeroBannerSkeleton from "@/components/shared/skeletons/heroBanner";
 import useUser from "@/hooks/useUser";
+import { useNavigate } from "react-router-dom";
 
 export default function HeroBanner() {
   const { games, loading } = useGames();
   const { dispatch, cart } = useCart();
   const { user } = useUser();
+  const navigation = useNavigate();
 
   useEffect(() => {
     if (games.length > 0) {
@@ -135,7 +137,7 @@ export default function HeroBanner() {
                 />
               ) : (
                 <Button
-                  onClick={() => {}}
+                  onClick={() => navigation("/profile")}
                   label={"Ver na biblioteca"}
                   className="z-10 transition-all"
                   style="tertiary"
